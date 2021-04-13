@@ -3,58 +3,93 @@ import pandas as pd
 import time
 
 
-url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c"
 
 
+# max_per_page    = 50
+# limit           = 150
 
-# Use offset and max_per_page to paginate
-result_data     = []
-get_data        = True
-offset          = 0
-max_per_page    = 50
-limit           = 150
 
-while get_data == True:
+def paginate(max_per_page, limit, url):
 
-    print(f"offset={offset}")
+    # Use offset and max_per_page to paginate
+    result_data     = []
+    appended_data   = []
+    get_data        = True
+    api_call        = 1
+    result_count    = 0
+    offset          = 0
 
-    # update query string for desired results
-    querystring = {"order_direction":"desc","offset":offset, "limit":limit}
+    while get_data == True: #and result_count <= limit:
 
-    # add headers/SSL if necessary
-    response = requests.request("GET", url, params=querystring)
-    j = response.json()
+        api_call+=1
+        print(f"offset={offset}")
 
-    # create dataframe with one columns of json strings
-    df = pd.DataFrame.from_dict(j)
+        querystring = {"order_direction":"desc","offset":offset, "limit":limit}
 
-    # split out json assets to columns
-    results = pd.json_normalize(df.assets)
+        # GET API response
+        response = requests.request("GET", url, params=querystring)
+        j = response.json()
 
-    print(f'Result preview from offest = {offset}')
-    print(results.head())
+        # create dataframe with one columns of json strings
+        df = pd.DataFrame.from_dict(j)
 
-    result_count = len(results)
-    print("Records returned: ", result_count)
+        # split out json assets to columns
+        results = pd.json_normalize(df.assets)
 
-    if result_count == 0:
-        get_data = False
-    elif offset != limit:
-        result_data.append(results)
-        offset = offset + max_per_page
-        print(f'Adding to result_data, offset set to {str(offset)}')
-        get_data = True
-    else:
-        try:
+        print(f'Result preview from offset = {offset}')
+        print(results.head())
+
+        result_count = len(results)
+        print(f"Records returned in API call {api_call}: ", result_count)
+
+        if result_count == 0:
+            get_data = False
+        elif len(appended_data) < limit-max_per_page:
+            #time.sleep(2)
+
             result_data.append(results)
-            print(f'Adding to result_data, result set was {str(len(result_data))}, so setting get_data = False')
-        except:
-            print(f'No Results to append! Setting get_data = False')
+            appended_data = pd.concat(result_data)
+            print(f"Cumulative results have {len(appended_data)}")
+            offset = offset + max_per_page
+            print(f'Adding to result_data, offset set to {str(offset)}')
+            get_data = True
+        else:
+            try:
+                result_data.append(results)
+                appended_data = pd.concat(result_data)
+                print(f'Adding final data to result_data, cumulative results have {str(len(appended_data))} records. Setting get_data = False.')
+            except:
+                print(f'No Results to append! Setting get_data = False')
 
-        get_data = False
+            get_data = False
 
-    print(result_data)
-    #result_data = pd.concat(result_data)
-    #print(f'Final count for all rows: {len(result_data)}')
+    print(f"Iterations finished. Results have {len(appended_data)} records.")
 
-    #result_data.to_csv('assets.csv', index=False)
+    final_data = appended_data[[
+        'id',
+        'name',
+        'description',
+        'traits',
+        'asset_contract.address',
+        'asset_contract.asset_contract_type',
+        'asset_contract.created_date',
+        'asset_contract.name',
+        'asset_contract.description',
+        'collection.description',
+        'collection.name',
+        'last_sale.total_price',
+        'last_sale.payment_token.symbol',
+        'last_sale.event_timestamp',
+        'last_sale.transaction.timestamp',
+        'last_sale.transaction.to_account.user.username'
+    ]]
+
+    print(final_data.dtypes)
+    #TODO: possibly format dates
+
+    final_data.to_csv(f'opensea_asset_data_with_limit={limit}.csv', index=False)
+
+    return appended_data
+
+
+appended_data = paginate(max_per_page=50, limit=150, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c")

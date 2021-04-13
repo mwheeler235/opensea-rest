@@ -1,2 +1,2 @@
 # opensea-rest
-For pulling data from opensea.io rest API
+For pulling data from opensea.io REST API

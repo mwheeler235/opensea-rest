@@ -3,23 +3,17 @@ import pandas as pd
 import time
 
 
-
-
-# max_per_page    = 50
-# limit           = 150
-
-
 def paginate(max_per_page, limit, url):
 
     # Use offset and max_per_page to paginate
     result_data     = []
     appended_data   = []
     get_data        = True
-    api_call        = 1
+    api_call        = 0
     result_count    = 0
     offset          = 0
 
-    while get_data == True: #and result_count <= limit:
+    while get_data == True:
 
         api_call+=1
         print(f"offset={offset}")
@@ -42,8 +36,10 @@ def paginate(max_per_page, limit, url):
         result_count = len(results)
         print(f"Records returned in API call {api_call}: ", result_count)
 
+        # error handling: if API call has zero records
         if result_count == 0:
             get_data = False
+        # Keep calling API if length of appended data is less than Limit
         elif len(appended_data) < limit-max_per_page:
             #time.sleep(2)
 
@@ -53,6 +49,7 @@ def paginate(max_per_page, limit, url):
             offset = offset + max_per_page
             print(f'Adding to result_data, offset set to {str(offset)}')
             get_data = True
+        # Final API call
         else:
             try:
                 result_data.append(results)
@@ -65,6 +62,7 @@ def paginate(max_per_page, limit, url):
 
     print(f"Iterations finished. Results have {len(appended_data)} records.")
 
+    # subset to columns of interest
     final_data = appended_data[[
         'id',
         'name',
@@ -84,12 +82,14 @@ def paginate(max_per_page, limit, url):
         'last_sale.transaction.to_account.user.username'
     ]]
 
+    print("Dtypes for final data:")
     print(final_data.dtypes)
     #TODO: possibly format dates
 
     final_data.to_csv(f'opensea_asset_data_with_limit={limit}.csv', index=False)
 
     return appended_data
+
 
 
 appended_data = paginate(max_per_page=50, limit=150, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c")

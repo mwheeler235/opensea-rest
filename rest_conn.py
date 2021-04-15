@@ -44,7 +44,9 @@ def paginate(max_per_page, limit, url):
             #time.sleep(2)
 
             result_data.append(results)
+            # concat list to dataframe
             appended_data = pd.concat(result_data)
+
             print(f"Cumulative results have {len(appended_data)}")
             offset = offset + max_per_page
             print(f'Adding to result_data, offset set to {str(offset)}')
@@ -59,6 +61,8 @@ def paginate(max_per_page, limit, url):
                 print(f'No Results to append! Setting get_data = False')
 
             get_data = False
+        
+
 
     print(f"Iterations finished. Results have {len(appended_data)} records.")
 
@@ -85,6 +89,9 @@ def paginate(max_per_page, limit, url):
     print("Dtypes for final data:")
     print(final_data.dtypes)
     #TODO: possibly format dates
+    # df['field] = df['field].datetime() etc...
+
+    #TODO: add timestamp of extract as column
 
     final_data.to_csv(f'opensea_asset_data_with_limit={limit}.csv', index=False)
 

@@ -1,9 +1,13 @@
 import requests
 import pandas as pd
 import time
+from datetime import date, datetime, timedelta
 
 
 def paginate(max_per_page, limit, url):
+
+    now = datetime.now()
+    print(f"Script Execution datetime (MT) is {now}")
 
     # Use offset and max_per_page to paginate
     result_data     = []
@@ -86,12 +90,15 @@ def paginate(max_per_page, limit, url):
         'last_sale.transaction.to_account.user.username'
     ]]
 
+    # convert datetime fields to proper format
+    final_data['last_sale.event_timestamp'] = pd.to_datetime(final_data['last_sale.event_timestamp'])
+    final_data['last_sale.transaction.timestamp'] = pd.to_datetime(final_data['last_sale.transaction.timestamp'])
+
+    # add script execution datetime as field
+    final_data.loc[:,'script_exec_datetime_mt'] = now
+
     print("Dtypes for final data:")
     print(final_data.dtypes)
-    #TODO: possibly format dates
-    # df['field] = df['field].datetime() etc...
-
-    #TODO: add timestamp of extract as column
 
     final_data.to_csv(f'opensea_asset_data_with_limit={limit}.csv', index=False)
 

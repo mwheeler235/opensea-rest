@@ -97,6 +97,16 @@ def paginate(max_per_page, limit, url):
     # add script execution datetime as field
     final_data.loc[:,'script_exec_datetime_mt'] = now
 
+    # extrac fields from Description
+    final_data[['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc','floor_elev_desc']] = final_data.description.str.split(",", expand=True)
+    final_data['cv_plotSize_m_sq'] = final_data.cv_plotSize_desc.str.extract('(\d+)')
+    final_data['cv_OCdistance_m'] = final_data.cv_OCdistance_desc.str.extract('(\d+)')
+    final_data['cv_buildHeight_m'] = final_data.cv_buildHeight_desc.str.extract('(\d+)')
+    final_data['cv_floor_elev_m'] = final_data.floor_elev_desc.str.extract('(\d+)')
+    #del final_data[['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc','floor_elev_desc']]
+    final_data.drop(['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc','floor_elev_desc'], axis = 1, inplace = True)
+
+
     print("Dtypes for final data:")
     print(final_data.dtypes)
 

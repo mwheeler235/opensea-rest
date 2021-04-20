@@ -98,12 +98,19 @@ def paginate(max_per_page, limit, url):
     final_data.loc[:,'script_exec_datetime_mt'] = now
 
     # extract fields from Description
-    final_data[['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc','floor_elev_desc']] = final_data.description.str.split(",", expand=True)
-    final_data['cv_plotSize_m_sq'] = final_data.cv_plotSize_desc.str.extract('(\d+)')
-    final_data['cv_OCdistance_m'] = final_data.cv_OCdistance_desc.str.extract('(\d+)')
-    final_data['cv_buildHeight_m'] = final_data.cv_buildHeight_desc.str.extract('(\d+)')
-    final_data['cv_floor_elev_m'] = final_data.floor_elev_desc.str.extract('(\d+)')
-    final_data.drop(['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc','floor_elev_desc'], axis = 1, inplace = True)
+    try:
+        final_data[['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc','floor_elev_desc']] = final_data.description.str.split(",", expand=True)
+        final_data['cv_plotSize_m_sq'] = final_data.cv_plotSize_desc.str.extract('(\d+)')
+        final_data['cv_OCdistance_m'] = final_data.cv_OCdistance_desc.str.extract('(\d+)')
+        final_data['cv_buildHeight_m'] = final_data.cv_buildHeight_desc.str.extract('(\d+)')
+        final_data['cv_floor_elev_m'] = final_data.floor_elev_desc.str.extract('(\d+)')
+        final_data.drop(['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc','floor_elev_desc'], axis = 1, inplace = True)
+    except:
+        final_data['cv_plotSize_m_sq'] is null
+        final_data['cv_OCdistance_m'] is null
+        final_data['cv_buildHeight_m'] is null
+        final_data['cv_floor_elev_m'] is null
+
 
 
     print("Dtypes for final data:")
@@ -115,4 +122,4 @@ def paginate(max_per_page, limit, url):
 
 
 
-appended_data = paginate(max_per_page=50, limit=150, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c")
+appended_data = paginate(max_per_page=50, limit=1000, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c")

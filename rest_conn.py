@@ -2,11 +2,13 @@ import requests
 import pandas as pd
 import time
 from datetime import date, datetime, timedelta
+import numpy as np
 
+now = datetime.now()
 
-def paginate(max_per_page, limit, url):
+def paginate(now, max_per_page, limit, url):
 
-    now = datetime.now()
+    
     print(f"Script Execution datetime (MT) is {now}")
 
     # Use offset and max_per_page to paginate
@@ -66,14 +68,13 @@ def paginate(max_per_page, limit, url):
 
             get_data = False
         
-
-
     print(f"Iterations finished. Results have {len(appended_data)} records.")
 
+    # write full column data as well
     appended_data.to_csv(f'opensea_asset_FULL_data_with_limit={limit}.csv', index=False)
 
     # subset to columns of interest
-    final_data = appended_data[[
+    slim_data = appended_data[[
         'id',
         'name',
         'description',
@@ -92,36 +93,64 @@ def paginate(max_per_page, limit, url):
         'last_sale.transaction.to_account.user.username'
     ]]
 
+    return slim_data, limit
+
+
+def extract_fields(df):
     # convert datetime fields to proper format
-    final_data['last_sale.event_timestamp'] = pd.to_datetime(final_data['last_sale.event_timestamp'])
-    final_data['last_sale.transaction.timestamp'] = pd.to_datetime(final_data['last_sale.transaction.timestamp'])
+    df['last_sale.event_timestamp'] = pd.to_datetime(df['last_sale.event_timestamp'])
+    df['last_sale.transaction.timestamp'] = pd.to_datetime(df['last_sale.transaction.timestamp'])
 
     # add script execution datetime as field
-    final_data.loc[:,'script_exec_datetime_mt'] = now
+    df.loc[:,'script_exec_datetime_mt'] = now
 
     # extract fields from Description
     try:
-        final_data[['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc','floor_elev_desc']] = final_data.description.str.split(",", expand=True)
-        final_data['cv_plotSize_m_sq'] = final_data.cv_plotSize_desc.str.extract('(\d+)')
-        final_data['cv_OCdistance_m'] = final_data.cv_OCdistance_desc.str.extract('(\d+)')
-        final_data['cv_buildHeight_m'] = final_data.cv_buildHeight_desc.str.extract('(\d+)')
-        final_data['cv_floor_elev_m'] = final_data.floor_elev_desc.str.extract('(\d+)')
-        final_data.drop(['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc','floor_elev_desc'], axis = 1, inplace = True)
+        df[['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc','floor_elev_desc']] = df.description.str.split(",", expand=True)
+        df['cv_plotSize_m_sq'] = df.cv_plotSize_desc.str.extract('(\d+)')
+        df['cv_OCdistance_m'] = df.cv_OCdistance_desc.str.extract('(\d+)')
+        df['cv_buildHeight_m'] = df.cv_buildHeight_desc.str.extract('(\d+)')
+        df['cv_floor_elev_m'] = df.floor_elev_desc.str.extract('(\d+)')
+        
+        # Create neighborhood_temp from first item in description
+        df["neighborhood_temp"]= df["cv_plotSize_desc"].str.replace("^.*(?= on )", "")
     except:
-        final_data['cv_plotSize_m_sq'] is null
-        final_data['cv_OCdistance_m'] is null
-        final_data['cv_buildHeight_m'] is null
-        final_data['cv_floor_elev_m'] is null
+        df['cv_plotSize_m_sq'] = np.nan
+        df['cv_OCdistance_m'] = np.nan
+        df['cv_buildHeight_m'] = np.nan
+        df['cv_floor_elev_m'] = np.nan
+        df["neighborhood_temp"]= np.nan
+    
+    # Extract actual neighborhood from full string (remove " on ")
+    try:
+        df["neighborhood"] = df.neighborhood_temp.str.split("on ", expand=True)[1]
+    except:
+        df["neighborhood"] = np.nan
 
-
+    df.drop(['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc','floor_elev_desc','neighborhood_temp'], axis = 1, inplace = True)
 
     print("Dtypes for final data:")
-    print(final_data.dtypes)
+    print(df.dtypes)
 
-    final_data.to_csv(f'opensea_asset_data_with_limit={limit}.csv', index=False)
-
-    return appended_data
+    return df
 
 
+def write(df, limit):
+    df.to_csv(f'opensea_asset_data_with_limit={limit}.csv', index=False)
+    write_msg = "Results... written to csv locally"
 
-appended_data = paginate(max_per_page=50, limit=100, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c")
+    return write_msg
+
+
+def main():
+
+    slim_data, limit    = paginate(now=now, max_per_page=50, limit=150, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c")
+    final_data          = extract_fields(df=slim_data)
+    write_msg           = write(df=final_data, limit=limit)
+    
+    print(write_msg)
+
+
+
+if __name__== "__main__" :
+    main()

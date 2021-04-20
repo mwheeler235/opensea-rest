@@ -1,3 +1,4 @@
 .vscode/*
 *.xlsx
 *.ipynb
+.ipynb_checkpoints

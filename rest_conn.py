@@ -70,6 +70,8 @@ def paginate(max_per_page, limit, url):
 
     print(f"Iterations finished. Results have {len(appended_data)} records.")
 
+    appended_data.to_csv(f'opensea_asset_FULL_data_with_limit={limit}.csv', index=False)
+
     # subset to columns of interest
     final_data = appended_data[[
         'id',
@@ -122,4 +124,4 @@ def paginate(max_per_page, limit, url):
 
 
 
-appended_data = paginate(max_per_page=50, limit=1000, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c")
+appended_data = paginate(max_per_page=50, limit=100, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c")

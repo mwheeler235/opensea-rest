@@ -94,7 +94,6 @@ def paginate(now, max_per_page, limit, url):
     print(f"Iterations finished. Results have {len(appended_data)} records.")
 
     # write full column data as well
-    #TODO: replace slashes with underscores in filename
     #appended_data.to_csv(f'opensea_cryptovoxel_FULL_data_with_limit={limit}_exDTMT={now}.csv')
 
     # subset to columns of interest
@@ -200,12 +199,6 @@ def extract_fields(df):
 
     return df
 
-
-# def write(df, limit):
-#     df.to_csv(f'./cryptovoxel_data/opensea_cryptovoxels_limit={limit}_exDTMT={now}.csv', index=False)
-#     write_msg = "Results... written to csv locally"
-
-#     return write_msg
 
 def write_csv_to_s3(bucket, key, df, limit, now):
     

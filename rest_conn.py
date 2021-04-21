@@ -76,7 +76,7 @@ def paginate(now, max_per_page, limit, url):
 
     # write full column data as well
     #TODO: replace slashes with underscores in filename
-    appended_data.to_csv(f'opensea_asset_FULL_data_with_limit={limit}_exDTMT={now}.csv')
+    appended_data.to_csv(f'opensea_cryptovoxel_FULL_data_with_limit={limit}_exDTMT={now}.csv')
 
     # subset to columns of interest
     slim_data = appended_data[[
@@ -189,7 +189,7 @@ def write(df, limit):
 
 def main():
 
-    slim_data, limit    = paginate(now=now, max_per_page=max_per_page, limit=2000, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c")
+    slim_data, limit    = paginate(now=now, max_per_page=max_per_page, limit=5000, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c")
     final_data          = extract_fields(df=slim_data)
     write_msg           = write(df=final_data, limit=limit)
     

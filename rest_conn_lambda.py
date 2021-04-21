@@ -3,6 +3,16 @@ import pandas as pd
 import time
 from datetime import date, datetime, timedelta
 import numpy as np
+from io import StringIO
+import boto3
+import sys
+import json
+
+
+# Configure boto session and sts_client for assuming roles 
+session     = boto3.session.Session(profile_name='mateosanchez')
+client_s3   = session.client('s3')
+sts_client = session.client('sts')
 
 
 # REST API limit = 50
@@ -12,6 +22,11 @@ now = datetime.now().strftime("%Y-%m-%d %H_%M_%S")
 now = now.replace(" ", "_")
 today = date.today()
 date_y_m_d = today.strftime("%Y-%m-%d")
+
+
+def print_pretty(j):
+    print(json.dumps(j, indent=2, sort_keys=True, default=str))
+
 
 def paginate(now, max_per_page, limit, url):
 
@@ -185,21 +200,36 @@ def extract_fields(df):
     return df
 
 
-def write(df, limit):
-    df.to_csv(f'./cryptovoxel_data/opensea_cryptovoxels_limit={limit}_exDTMT={now}.csv', index=False)
-    write_msg = "Results... written to csv locally"
+# def write(df, limit):
+#     df.to_csv(f'./cryptovoxel_data/opensea_cryptovoxels_limit={limit}_exDTMT={now}.csv', index=False)
+#     write_msg = "Results... written to csv locally"
 
-    return write_msg
+#     return write_msg
+
+def write_csv_to_s3(bucket, key, df, limit, now):
+    
+    csv_buffer = StringIO()
+    df.to_csv(csv_buffer)
+
+    s3_resource = boto3.resource('s3')
+    s3_resource.Object(bucket, f'{key}/opensea_cryptovoxels_limit={limit}_exDTMT={now}.csv').put(Body=csv_buffer.getvalue())
+ 
+    params = {
+        'Bucket': bucket,
+        'Prefix': key
+    }
+ 
+    response = client_s3.list_objects_v2(**params)
+    print("Objects in Bucket Keys:")
+    print_pretty(response['Contents'])
 
 
 def main():
 
     slim_data, limit    = paginate(now=now, max_per_page=max_per_page, limit=150, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c")
     final_data          = extract_fields(df=slim_data)
-    write_msg           = write(df=final_data, limit=limit)
-    
-    print(write_msg)
 
+    write_csv_to_s3(bucket="opensea-data", key="cryptovoxel_data", df=final_data, limit=limit, now=now)
 
 
 if __name__== "__main__" :

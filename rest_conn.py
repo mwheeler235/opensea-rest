@@ -4,6 +4,10 @@ import time
 from datetime import date, datetime, timedelta
 import numpy as np
 
+
+# REST API limit = 50
+max_per_page = 50
+
 now = datetime.now()
 
 def paginate(now, max_per_page, limit, url):
@@ -71,7 +75,8 @@ def paginate(now, max_per_page, limit, url):
     print(f"Iterations finished. Results have {len(appended_data)} records.")
 
     # write full column data as well
-    #appended_data.to_csv(f'opensea_asset_FULL_data_with_limit={limit}.csv', index=False)
+    #TODO: replace slashes with underscores in filename
+    appended_data.to_csv(f'opensea_asset_FULL_data_with_limit={limit}_exDTMT={now}.csv')
 
     # subset to columns of interest
     slim_data = appended_data[[
@@ -97,6 +102,10 @@ def paginate(now, max_per_page, limit, url):
 
 
 def extract_fields(df):
+
+    # drop records with complete nulls
+    df = df.dropna(how='all')
+
     # convert datetime fields to proper format
     df['last_sale.event_timestamp'] = pd.to_datetime(df['last_sale.event_timestamp'])
     df['last_sale.transaction.timestamp'] = pd.to_datetime(df['last_sale.transaction.timestamp'])
@@ -104,30 +113,66 @@ def extract_fields(df):
     # add script execution datetime as field
     df.loc[:,'script_exec_datetime_mt'] = now
 
-    # extract fields from Description
+    # Segregate two types of records into two DFs
+    #   1. "Odd Records": Find "and near to" then extract first three fields only
+    #   2. "Main Records": Extract 4 fields
+    df_odd_recs = df.loc[df['description'].str.contains("and near to")]
+    df_main_recs = df.loc[~df['description'].str.contains("and near to")]
+
+    #### 1
+    # extract fields for the odd df
+    try:  
+        df_odd_recs[['string1','near_to']] = df_odd_recs.description.str.split("and near to", expand=True)
+        df_odd_recs[['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc']] = df_odd_recs.string1.str.split(",", expand=True)
+        df_odd_recs['cv_plotSize_m_sq'] = df_odd_recs.cv_plotSize_desc.str.extract('(\d+)')
+        df_odd_recs['cv_OCdistance_m'] = df_odd_recs.cv_OCdistance_desc.str.extract('(\d+)')
+        df_odd_recs['cv_buildHeight_m'] = df_odd_recs.cv_buildHeight_desc.str.extract('(\d+)')
+        
+        # add addtl fields as NULL for later concat
+        df_odd_recs['cv_floor_elev_m'] = np.nan
+        df_odd_recs["neighborhood_temp"]= np.nan
+        df_odd_recs["neighborhood"]= np.nan
+    except:
+        df_odd_recs['cv_plotSize_m_sq'] = np.nan
+        df_odd_recs['cv_OCdistance_m'] = np.nan
+        df_odd_recs['cv_buildHeight_m'] = np.nan
+        df_odd_recs['cv_floor_elev_m'] = np.nan
+        df_odd_recs["neighborhood_temp"]= np.nan
+        df_odd_recs["neighborhood"]= np.nan
+
+
+    #### 2
+    # extract fields for main df
     try:
-        df[['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc','floor_elev_desc']] = df.description.str.split(",", expand=True)
-        df['cv_plotSize_m_sq'] = df.cv_plotSize_desc.str.extract('(\d+)')
-        df['cv_OCdistance_m'] = df.cv_OCdistance_desc.str.extract('(\d+)')
-        df['cv_buildHeight_m'] = df.cv_buildHeight_desc.str.extract('(\d+)')
-        df['cv_floor_elev_m'] = df.floor_elev_desc.str.extract('(\d+)')
+        df_main_recs[['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc','floor_elev_desc']] = df_main_recs.description.str.split(",", expand=True)
+        df_main_recs['cv_plotSize_m_sq'] = df_main_recs.cv_plotSize_desc.str.extract('(\d+)')
+        df_main_recs['cv_OCdistance_m'] = df_main_recs.cv_OCdistance_desc.str.extract('(\d+)')
+        df_main_recs['cv_buildHeight_m'] = df_main_recs.cv_buildHeight_desc.str.extract('(\d+)')
+        df_main_recs['cv_floor_elev_m'] = df_main_recs.floor_elev_desc.str.extract('(\d+)')
+
+        # add "near_to" field as NULL
+        df_main_recs['near_to'] = np.nan
         
         # Create neighborhood_temp from first item in description
-        df["neighborhood_temp"]= df["cv_plotSize_desc"].str.replace("^.*(?= on )", "")
+        df_main_recs["neighborhood_temp"]= df_main_recs["cv_plotSize_desc"].str.replace("^.*(?= on )", "")
     except:
-        df['cv_plotSize_m_sq'] = np.nan
-        df['cv_OCdistance_m'] = np.nan
-        df['cv_buildHeight_m'] = np.nan
-        df['cv_floor_elev_m'] = np.nan
-        df["neighborhood_temp"]= np.nan
+        df_main_recs['cv_plotSize_m_sq'] = np.nan
+        df_main_recs['cv_OCdistance_m'] = np.nan
+        df_main_recs['cv_buildHeight_m'] = np.nan
+        df_main_recs['cv_floor_elev_m'] = np.nan
+        df_main_recs["neighborhood_temp"]= np.nan
     
     # Extract actual neighborhood from full string (remove " on ")
     try:
-        df["neighborhood"] = df.neighborhood_temp.str.split("on ", expand=True)[1]
+        df_main_recs["neighborhood"] = df_main_recs.neighborhood_temp.str.split("on ", expand=True)[1]
     except:
-        df["neighborhood"] = np.nan
+        df_main_recs["neighborhood"] = np.nan
 
-    df.drop(['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc','floor_elev_desc','neighborhood_temp'], axis = 1, inplace = True)
+
+    # stack both DFs
+    df = pd.concat([df_main_recs, df_odd_recs], axis=0)
+    df.reset_index(drop=True, inplace=True)
+    df.drop(['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc','floor_elev_desc','neighborhood_temp','string1'], axis = 1, inplace = True)
 
     print("Dtypes for final data:")
     print(df.dtypes)
@@ -144,7 +189,7 @@ def write(df, limit):
 
 def main():
 
-    slim_data, limit    = paginate(now=now, max_per_page=50, limit=10000, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c")
+    slim_data, limit    = paginate(now=now, max_per_page=max_per_page, limit=2000, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c")
     final_data          = extract_fields(df=slim_data)
     write_msg           = write(df=final_data, limit=limit)
     

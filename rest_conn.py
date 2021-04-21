@@ -8,7 +8,10 @@ import numpy as np
 # REST API limit = 50
 max_per_page = 50
 
-now = datetime.now()
+now = datetime.now().strftime("%Y-%m-%d %H_%M_%S")
+#now = now.replace(":", "_")
+today = date.today()
+date_y_m_d = today.strftime("%Y-%m-%d")
 
 def paginate(now, max_per_page, limit, url):
 
@@ -76,7 +79,7 @@ def paginate(now, max_per_page, limit, url):
 
     # write full column data as well
     #TODO: replace slashes with underscores in filename
-    appended_data.to_csv(f'opensea_cryptovoxel_FULL_data_with_limit={limit}_exDTMT={now}.csv')
+    #appended_data.to_csv(f'opensea_cryptovoxel_FULL_data_with_limit={limit}_exDTMT={now}.csv')
 
     # subset to columns of interest
     slim_data = appended_data[[
@@ -127,6 +130,8 @@ def extract_fields(df):
         df_odd_recs['cv_plotSize_m_sq'] = df_odd_recs.cv_plotSize_desc.str.extract('(\d+)')
         df_odd_recs['cv_OCdistance_m'] = df_odd_recs.cv_OCdistance_desc.str.extract('(\d+)')
         df_odd_recs['cv_buildHeight_m'] = df_odd_recs.cv_buildHeight_desc.str.extract('(\d+)')
+
+        df_odd_recs.drop(['string1'], axis = 1, inplace = True)
         
         # add addtl fields as NULL for later concat
         df_odd_recs['cv_floor_elev_m'] = np.nan
@@ -172,7 +177,7 @@ def extract_fields(df):
     # stack both DFs
     df = pd.concat([df_main_recs, df_odd_recs], axis=0)
     df.reset_index(drop=True, inplace=True)
-    df.drop(['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc','floor_elev_desc','neighborhood_temp','string1'], axis = 1, inplace = True)
+    df.drop(['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc','floor_elev_desc','neighborhood_temp'], axis = 1, inplace = True)
 
     print("Dtypes for final data:")
     print(df.dtypes)
@@ -181,7 +186,7 @@ def extract_fields(df):
 
 
 def write(df, limit):
-    df.to_csv(f'opensea_cryptovoxels_limit={limit}_exDTMT={now}.csv', index=False)
+    df.to_csv(f'./cryptovoxel_data/opensea_cryptovoxels_limit={limit}_exDTMT={now}.csv', index=False)
     write_msg = "Results... written to csv locally"
 
     return write_msg

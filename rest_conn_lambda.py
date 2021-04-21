@@ -9,22 +9,6 @@ import sys
 import json
 
 
-# Configure boto session and sts_client for assuming roles 
-#session     = boto3.session.Session(profile_name='mateosanchez')
-session     = boto3.session.Session()
-client_s3   = session.client('s3')
-#sts_client = session.client('sts')
-
-
-# REST API limit = 50
-max_per_page = 50
-
-now = datetime.now().strftime("%Y-%m-%d %H_%M_%S")
-now = now.replace(" ", "_")
-today = date.today()
-date_y_m_d = today.strftime("%Y-%m-%d")
-
-
 def print_pretty(j):
     print(json.dumps(j, indent=2, sort_keys=True, default=str))
 
@@ -220,6 +204,20 @@ def write_csv_to_s3(bucket, key, df, limit, now):
 
 def lambda_handler(event, context):
     print(event)
+
+    # Configure boto session and sts_client for assuming roles 
+    #session     = boto3.session.Session(profile_name='mateosanchez')
+    session     = boto3.session.Session()
+    client_s3   = session.client('s3')
+    #sts_client = session.client('sts')
+
+    # REST API limit = 50
+    max_per_page = 50
+
+    now = datetime.now().strftime("%Y-%m-%d %H_%M_%S")
+    now = now.replace(" ", "_")
+    today = date.today()
+    date_y_m_d = today.strftime("%Y-%m-%d")
 
     slim_data, limit    = paginate(now=now, max_per_page=max_per_page, limit=150, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c")
     final_data          = extract_fields(df=slim_data)

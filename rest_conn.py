@@ -131,6 +131,9 @@ def extract_fields(df):
         df_odd_recs['cv_OCdistance_m'] = df_odd_recs.cv_OCdistance_desc.str.extract('(\d+)')
         df_odd_recs['cv_buildHeight_m'] = df_odd_recs.cv_buildHeight_desc.str.extract('(\d+)')
 
+        # Create neighborhood_temp from first item in description
+        df_main_recs["neighborhood_temp"]= df_main_recs["cv_plotSize_desc"].str.replace("^.*(?= on )", "")
+
         df_odd_recs.drop(['string1'], axis = 1, inplace = True)
         
         # add addtl fields as NULL for later concat

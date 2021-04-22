@@ -131,15 +131,13 @@ def extract_fields(df):
         df_odd_recs['cv_OCdistance_m'] = df_odd_recs.cv_OCdistance_desc.str.extract('(\d+)')
         df_odd_recs['cv_buildHeight_m'] = df_odd_recs.cv_buildHeight_desc.str.extract('(\d+)')
 
-        # Create neighborhood_temp from first item in description
-        df_main_recs["neighborhood_temp"]= df_main_recs["cv_plotSize_desc"].str.replace("^.*(?= on )", "")
+        # Create neighborhood_temp from first item in description (this type of records uses "near")
+        df_odd_recs["neighborhood_temp"]= df_odd_recs["cv_plotSize_desc"].str.replace("^.*(?= near )", "")
 
         df_odd_recs.drop(['string1'], axis = 1, inplace = True)
         
         # add addtl fields as NULL for later concat
         df_odd_recs['cv_floor_elev_m'] = np.nan
-        df_odd_recs["neighborhood_temp"]= np.nan
-        df_odd_recs["neighborhood"]= np.nan
     except:
         df_odd_recs['cv_plotSize_m_sq'] = np.nan
         df_odd_recs['cv_OCdistance_m'] = np.nan
@@ -147,6 +145,12 @@ def extract_fields(df):
         df_odd_recs['cv_floor_elev_m'] = np.nan
         df_odd_recs["neighborhood_temp"]= np.nan
         df_odd_recs["neighborhood"]= np.nan
+
+    # Extract actual neighborhood from full string (remove "near ")
+    try:
+        df_odd_recs["neighborhood"] = df_odd_recs.neighborhood_temp.str.split("near ", expand=True)[1]
+    except:
+        df_odd_recs["neighborhood"] = np.nan
 
 
     #### 2
@@ -161,7 +165,7 @@ def extract_fields(df):
         # add "near_to" field as NULL
         df_main_recs['near_to'] = np.nan
         
-        # Create neighborhood_temp from first item in description
+        # Create neighborhood_temp from first item in description (this type of records uses "on")
         df_main_recs["neighborhood_temp"]= df_main_recs["cv_plotSize_desc"].str.replace("^.*(?= on )", "")
     except:
         df_main_recs['cv_plotSize_m_sq'] = np.nan

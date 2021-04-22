@@ -4,3 +4,4 @@
 .ipynb_checkpoints
 *.csv
 *.twb
+cryptovoxel_data/*

@@ -186,6 +186,11 @@ def extract_fields(df):
     df.reset_index(drop=True, inplace=True)
     df.drop(['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc','floor_elev_desc','neighborhood_temp'], axis = 1, inplace = True)
 
+
+    # Remove " in Origin City" from Neighborhood
+    df["neighborhood"] = df["neighborhood"].str.replace(" in Origin City", "")
+
+
     print("Dtypes for final data:")
     print(df.dtypes)
 

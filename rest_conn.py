@@ -3,6 +3,7 @@ import pandas as pd
 import time
 from datetime import date, datetime, timedelta
 import numpy as np
+import sys
 
 
 # REST API limit = 50
@@ -79,7 +80,7 @@ def paginate(now, max_per_page, limit, url):
 
     # write full column data as well
     #TODO: replace slashes with underscores in filename
-    #appended_data.to_csv(f'opensea_cryptovoxel_FULL_data_with_limit={limit}_exDTMT={now}.csv')
+    appended_data.to_csv(f'opensea_cryptovoxel_FULL_data_with_limit={limit}_exDTMT={now}.csv')
 
     # subset to columns of interest
     slim_data = appended_data[[
@@ -119,38 +120,50 @@ def extract_fields(df):
     # Segregate two types of records into two DFs
     #   1. "Odd Records": Find "and near to" then extract first three fields only
     #   2. "Main Records": Extract 4 fields
-    df_odd_recs = df.loc[df['description'].str.contains("and near to")]
-    df_main_recs = df.loc[~df['description'].str.contains("and near to")]
 
-    #### 1
-    # extract fields for the odd df
-    try:  
-        df_odd_recs[['string1','near_to']] = df_odd_recs.description.str.split("and near to", expand=True)
-        df_odd_recs[['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc']] = df_odd_recs.string1.str.split(",", expand=True)
-        df_odd_recs['cv_plotSize_m_sq'] = df_odd_recs.cv_plotSize_desc.str.extract('(\d+)')
-        df_odd_recs['cv_OCdistance_m'] = df_odd_recs.cv_OCdistance_desc.str.extract('(\d+)')
-        df_odd_recs['cv_buildHeight_m'] = df_odd_recs.cv_buildHeight_desc.str.extract('(\d+)')
+    # first, check if odd records exist, and if they do, then perform extraction
+    if df['description'].str.contains('and near to').any(): 
+        print('Records containing "and near to" in the Description field have been found.')
 
-        # Create neighborhood_temp from first item in description (this type of records uses "near")
-        df_odd_recs["neighborhood_temp"]= df_odd_recs["cv_plotSize_desc"].str.replace("^.*(?= near )", "")
+        df_odd_recs = df.loc[df['description'].str.contains("and near to")]
+        df_main_recs = df.loc[~df['description'].str.contains("and near to")]
 
-        df_odd_recs.drop(['string1'], axis = 1, inplace = True)
-        
-        # add addtl fields as NULL for later concat
-        df_odd_recs['cv_floor_elev_m'] = np.nan
-    except:
-        df_odd_recs['cv_plotSize_m_sq'] = np.nan
-        df_odd_recs['cv_OCdistance_m'] = np.nan
-        df_odd_recs['cv_buildHeight_m'] = np.nan
-        df_odd_recs['cv_floor_elev_m'] = np.nan
-        df_odd_recs["neighborhood_temp"]= np.nan
-        df_odd_recs["neighborhood"]= np.nan
+        #### 1
+        # extract fields for the odd df
+        try:  
+            df_odd_recs[['string1','near_to']] = df_odd_recs.description.str.split("and near to", expand=True)
+            df_odd_recs[['cv_plotSize_desc','cv_OCdistance_desc','cv_buildHeight_desc']] = df_odd_recs.string1.str.split(",", expand=True)
+            df_odd_recs['cv_plotSize_m_sq'] = df_odd_recs.cv_plotSize_desc.str.extract('(\d+)')
+            df_odd_recs['cv_OCdistance_m'] = df_odd_recs.cv_OCdistance_desc.str.extract('(\d+)')
+            df_odd_recs['cv_buildHeight_m'] = df_odd_recs.cv_buildHeight_desc.str.extract('(\d+)')
 
-    # Extract actual neighborhood from full string (remove "near ")
-    try:
-        df_odd_recs["neighborhood"] = df_odd_recs.neighborhood_temp.str.split("near ", expand=True)[1]
-    except:
-        df_odd_recs["neighborhood"] = np.nan
+            # Create neighborhood_temp from first item in description (this type of records uses "near")
+            df_odd_recs["neighborhood_temp"]= df_odd_recs["cv_plotSize_desc"].str.replace("^.*(?= near )", "")
+
+            df_odd_recs.drop(['string1'], axis = 1, inplace = True)
+            
+            # add addtl fields as NULL for later concat
+            df_odd_recs['cv_floor_elev_m'] = np.nan
+        except:
+            df_odd_recs['cv_plotSize_m_sq'] = np.nan
+            df_odd_recs['cv_OCdistance_m'] = np.nan
+            df_odd_recs['cv_buildHeight_m'] = np.nan
+            df_odd_recs['cv_floor_elev_m'] = np.nan
+            df_odd_recs["neighborhood_temp"]= np.nan
+            df_odd_recs["neighborhood"]= np.nan
+
+
+        # Extract actual neighborhood from full string (remove "near ")
+        try:
+            df_odd_recs["neighborhood"] = df_odd_recs.neighborhood_temp.str.split("near ", expand=True)[1]
+        except:
+            df_odd_recs["neighborhood"] = np.nan
+
+    # if odd records do not exist, set main to source DF and df_odd_recs to empty
+    else:
+        print('Records containing "and near to" in the Description field Do Not Exist!')
+        df_main_recs = df
+        df_odd_recs = pd.DataFrame()
 
 
     #### 2
@@ -206,7 +219,7 @@ def write(df, limit):
 
 def main():
 
-    slim_data, limit    = paginate(now=now, max_per_page=max_per_page, limit=5000, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c")
+    slim_data, limit    = paginate(now=now, max_per_page=max_per_page, limit=100, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c")
     final_data          = extract_fields(df=slim_data)
     write_msg           = write(df=final_data, limit=limit)
     

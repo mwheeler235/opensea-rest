@@ -6,6 +6,8 @@ import numpy as np
 import sys
 
 
+### configurations
+
 # REST API limit = 50
 max_per_page = 50
 
@@ -14,7 +16,20 @@ now = now.replace(" ", "_")
 today = date.today()
 date_y_m_d = today.strftime("%Y-%m-%d")
 
-def paginate(now, max_per_page, limit, url):
+
+### utilities
+def to_datetime():
+    pass
+
+def regex_extract_numeric():
+    pass
+
+def set_nan():
+    pass
+
+
+
+def paginate(now, max_per_page, limit, url, write_raw):
 
     
     print(f"Script Execution datetime (MT) is {now}")
@@ -78,8 +93,12 @@ def paginate(now, max_per_page, limit, url):
         
     print(f"Iterations finished. Results have {len(appended_data)} records.")
 
-    # write full column data as well
-    #appended_data.to_csv(f'opensea_cryptovoxel_FULL_data_with_limit={limit}_exDTMT={now}.csv')
+    # write full column data if specified
+    if write_raw == True:
+        appended_data.to_csv(f'opensea_cryptovoxel_FULL_data_with_limit={limit}_exDTMT={now}.csv')
+        print("Raw data has been written to CSV.")
+    else:
+        print(f"Write raw data set to: {write_raw}")
 
     # subset to columns of interest
     slim_data = appended_data[[
@@ -217,14 +236,14 @@ def extract_fields(df):
 
 def write(df, limit):
     df.to_csv(f'./cryptovoxel_data/opensea_cryptovoxels_limit={limit}_exDTMT={now}.csv', index=False)
-    write_msg = "Results... written to csv locally"
+    write_msg = "Scrubbed results written to CSV locally"
 
     return write_msg
 
 
 def main():
 
-    slim_data, limit    = paginate(now=now, max_per_page=max_per_page, limit=5000, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c")
+    slim_data, limit    = paginate(now=now, max_per_page=max_per_page, limit=150, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c", write_raw=False)
     final_data          = extract_fields(df=slim_data)
     write_msg           = write(df=final_data, limit=limit)
     

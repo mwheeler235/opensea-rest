@@ -98,7 +98,8 @@ def paginate(now, max_per_page, limit, url):
         'last_sale.payment_token.symbol',
         'last_sale.event_timestamp',
         'last_sale.transaction.timestamp',
-        'last_sale.transaction.to_account.user.username'
+        'last_sale.transaction.to_account.user.username',
+        'external_link'
     ]]
 
     return slim_data, limit
@@ -223,7 +224,7 @@ def write(df, limit):
 
 def main():
 
-    slim_data, limit    = paginate(now=now, max_per_page=max_per_page, limit=100, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c")
+    slim_data, limit    = paginate(now=now, max_per_page=max_per_page, limit=5000, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c")
     final_data          = extract_fields(df=slim_data)
     write_msg           = write(df=final_data, limit=limit)
     

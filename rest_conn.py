@@ -79,8 +79,7 @@ def paginate(now, max_per_page, limit, url):
     print(f"Iterations finished. Results have {len(appended_data)} records.")
 
     # write full column data as well
-    #TODO: replace slashes with underscores in filename
-    appended_data.to_csv(f'opensea_cryptovoxel_FULL_data_with_limit={limit}_exDTMT={now}.csv')
+    #appended_data.to_csv(f'opensea_cryptovoxel_FULL_data_with_limit={limit}_exDTMT={now}.csv')
 
     # subset to columns of interest
     slim_data = appended_data[[
@@ -109,6 +108,11 @@ def extract_fields(df):
 
     # drop records with complete nulls
     df = df.dropna(how='all')
+    # replace NaN with None
+    df = df.replace(np.nan, None)
+
+    # convert total price to actual ETH format
+    df['last_sale_total_price_adj'] = df['last_sale.total_price'].astype(float)/1000000000000000000.00
 
     # convert datetime fields to proper format
     df['last_sale.event_timestamp'] = pd.to_datetime(df['last_sale.event_timestamp'])

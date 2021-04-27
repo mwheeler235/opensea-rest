@@ -24,8 +24,11 @@ def to_datetime():
 def regex_extract_numeric():
     pass
 
-def set_nan():
-    pass
+
+def set_nan(df, field):
+    df['field'] = np.nan
+
+    return df
 
 
 
@@ -145,7 +148,7 @@ def extract_fields(df):
     #   1. "Odd Records": Find "and near to" then extract first three fields only
     #   2. "Main Records": Extract 4 fields
 
-    # first, check if odd records exist, and if they do, then perform extraction
+    # Check if odd records exist, and if they do, then perform odd extraction
     if df['description'].str.contains('and near to').any(): 
         print('Records containing "and near to" in the Description field have been found.')
 
@@ -167,21 +170,21 @@ def extract_fields(df):
             df_odd_recs.drop(['string1'], axis = 1, inplace = True)
             
             # add addtl fields as NULL for later concat
-            df_odd_recs['cv_floor_elev_m'] = np.nan
+            df_odd_recs = set_nan(df_odd_recs, 'cv_floor_elev_m')
+
         except:
-            df_odd_recs['cv_plotSize_m_sq'] = np.nan
-            df_odd_recs['cv_OCdistance_m'] = np.nan
-            df_odd_recs['cv_buildHeight_m'] = np.nan
-            df_odd_recs['cv_floor_elev_m'] = np.nan
-            df_odd_recs["neighborhood_temp"]= np.nan
-            df_odd_recs["neighborhood"]= np.nan
+            df_odd_recs = set_nan(df_odd_recs, 'cv_plotSize_m_sq')
+            df_odd_recs = set_nan(df_odd_recs, 'cv_buildHeight_m')
+            df_odd_recs = set_nan(df_odd_recs, 'cv_floor_elev_m')
+            df_odd_recs = set_nan(df_odd_recs, 'neighborhood_temp')
+            df_odd_recs = set_nan(df_odd_recs, 'neighborhood')
 
 
         # Extract actual neighborhood from full string (remove "near ")
         try:
             df_odd_recs["neighborhood"] = df_odd_recs.neighborhood_temp.str.split("near ", expand=True)[1]
         except:
-            df_odd_recs["neighborhood"] = np.nan
+            df_odd_recs = set_nan(df_odd_recs, 'neighborhood')
 
     # if odd records do not exist, set main to source DF and df_odd_recs to empty
     else:
@@ -199,23 +202,25 @@ def extract_fields(df):
         df_main_recs['cv_buildHeight_m'] = df_main_recs.cv_buildHeight_desc.str.extract('(\d+)')
         df_main_recs['cv_floor_elev_m'] = df_main_recs.floor_elev_desc.str.extract('(\d+)')
 
-        # add "near_to" field as NULL
-        df_main_recs['near_to'] = np.nan
+        # add "near_to" field as NULL for main df
+        df_main_recs = set_nan(df_main_recs, 'near_to')
         
         # Create neighborhood_temp from first item in description (this type of records uses "on")
         df_main_recs["neighborhood_temp"]= df_main_recs["cv_plotSize_desc"].str.replace("^.*(?= on )", "")
-    except:
-        df_main_recs['cv_plotSize_m_sq'] = np.nan
-        df_main_recs['cv_OCdistance_m'] = np.nan
-        df_main_recs['cv_buildHeight_m'] = np.nan
-        df_main_recs['cv_floor_elev_m'] = np.nan
-        df_main_recs["neighborhood_temp"]= np.nan
-    
-    # Extract actual neighborhood from full string (remove " on ")
-    try:
+        # Extract actual neighborhood from full string (remove " on ")
         df_main_recs["neighborhood"] = df_main_recs.neighborhood_temp.str.split("on ", expand=True)[1]
+
     except:
-        df_main_recs["neighborhood"] = np.nan
+        df_main_recs = set_nan(df_main_recs, 'cv_plotSize_m_sq')
+        df_main_recs = set_nan(df_main_recs, 'cv_buildHeight_m')
+        df_main_recs = set_nan(df_main_recs, 'cv_floor_elev_m')
+        df_main_recs = set_nan(df_main_recs, 'neighborhood_temp')
+        df_main_recs = set_nan(df_main_recs, 'neighborhood')
+    
+    # try:
+    #     df_main_recs["neighborhood"] = df_main_recs.neighborhood_temp.str.split("on ", expand=True)[1]
+    # except:
+    #     df_main_recs["neighborhood"] = np.nan
 
 
     # stack both DFs
@@ -226,7 +231,6 @@ def extract_fields(df):
 
     # Remove " in Origin City" from Neighborhood
     df["neighborhood"] = df["neighborhood"].str.replace(" in Origin City", "")
-
 
     print("Dtypes for final data:")
     print(df.dtypes)

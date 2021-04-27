@@ -7,3 +7,4 @@
 *.twb
 *.twbr
 cryptovoxel_data/*
+cryptovoxel_data/.DS_Store

@@ -6,7 +6,6 @@ from sklearn import preprocessing
 import pandas as pd
 import numpy as np
 
-#TODO: AttributeError: Feature importance is not defined for Booster type None
 
 df = pd.read_csv('./cryptovoxel_data/opensea_cryptovoxels_limit=5000_exDTMT=2021-04-27_09_52_41.csv')
 df = df.replace(np.nan, None)
@@ -18,9 +17,10 @@ df_features = df[['last_sale_total_price_adj','cv_plotSize_m_sq','cv_OCdistance_
 
 # remove records where target is NULL
 df_features = df_features[df_features['last_sale_total_price_adj'].notnull()]
-
-
 print(f"Data with non-null target has {df_features['last_sale_total_price_adj'].count()} records.")
+
+#TODO: subset data to ETH and WETH... or convert all prices to ETH?
+
 
 #TODO: One hot encode neighborhood
 
@@ -58,16 +58,32 @@ regressor = XGBRegressor(
 
 print(regressor)
 
+X_train = X_train.copy()
+y_train = y_train.copy()
+X_test = X_test.copy()
 
 print("...fitting regressor to training data")
 regressor.fit(X_train, y_train)
+print("~~~ Done fitting model ~~~")
 
 print("XGBoost Feature Importance:")
 print(pd.DataFrame(regressor.feature_importances_.reshape(1, -1), columns=X.columns))
 
-
 # call predictions on the test set
 y_pred = regressor.predict(X_test)
 
-# model results
 print("Model MSE:", mean_squared_error(y_test, y_pred))
+
+
+# post-process results
+y_pred_df = pd.DataFrame(y_pred).rename(columns={0: "predicted_price"})
+
+y_test_df = pd.DataFrame(y_test).rename(columns={"last_sale_total_price_adj": "actual_price"})
+y_test_df.reset_index(inplace=True, drop=True)
+
+X_test.reset_index(inplace=True)
+
+joined_results = y_pred_df.join(y_test_df).join(X_test)
+
+joined_results.to_csv("xgb_results.csv", index=False)
+print("XGBoost model results written to CSV")

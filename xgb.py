@@ -22,6 +22,7 @@ df_features = df_features[df_features['last_sale_total_price_adj'].notnull()]
 
 print(f"Data with non-null target has {df_features['last_sale_total_price_adj'].count()} records.")
 
+#TODO: One hot encode neighborhood
 
 target = ['last_sale_total_price_adj']
 target_encode_columns = ['neighborhood']
@@ -46,6 +47,8 @@ X = df_features_numeric[['cv_plotSize_m_sq','cv_OCdistance_m','cv_buildHeight_m'
 
 X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.20, random_state=82)
 
+# Lambda: regularization parameter that reduces the prediction’s sensitivity to individual observations
+# Gamma: minimum loss reduction required to make a further partition on a leaf node of the tree
 regressor = XGBRegressor(
     n_estimators=100,
     reg_lambda=1,
@@ -54,6 +57,10 @@ regressor = XGBRegressor(
 )
 
 print(regressor)
+
+
+print("...fitting regressor to training data")
+regressor.fit(X_train, y_train)
 
 print("XGBoost Feature Importance:")
 print(pd.DataFrame(regressor.feature_importances_.reshape(1, -1), columns=X.columns))

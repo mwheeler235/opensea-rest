@@ -9,17 +9,18 @@ import numpy as np
 
 df = pd.read_csv('./cryptovoxel_data/opensea_cryptovoxels_limit=5000_exDTMT=2021-04-27_09_52_41.csv')
 df = df.replace(np.nan, None)
-
 print(f"Raw data has {df['id'].count()} records.")
 
-# subset to target and desired features
+# subset data to ETH and WETH... convert all prices to ETH? apparently they should be 1:1
+df = df.loc[df['last_sale.payment_token.symbol'].isin(['ETH','WETH'])]
+print(f"Data subset with symbol in ['ETH', 'WETH'] has {df['id'].count()} records.")
+
+# subset columns to target and desired features
 df_features = df[['last_sale_total_price_adj','cv_plotSize_m_sq','cv_OCdistance_m','cv_buildHeight_m','cv_floor_elev_m','neighborhood']]
 
 # remove records where target is NULL
 df_features = df_features[df_features['last_sale_total_price_adj'].notnull()]
 print(f"Data with non-null target has {df_features['last_sale_total_price_adj'].count()} records.")
-
-#TODO: subset data to ETH and WETH... or convert all prices to ETH?
 
 
 #TODO: One hot encode neighborhood

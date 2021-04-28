@@ -1,11 +1,13 @@
 from numpy import loadtxt
 from xgboost import XGBRegressor
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, RandomizedSearchCV, KFold
 from sklearn.metrics import mean_squared_error
 from sklearn import preprocessing
 import pandas as pd
 import numpy as np
 import sys
+from scipy import stats
+from scipy.stats import randint
 
 def read_and_define_scope(file_name, desired_features, target):
 
@@ -65,38 +67,58 @@ def training_split(df, target, test_size):
 
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=82)
 
-    return X_train, X_test, y_train, y_test
+    return X_train, X_test, y_train, y_test, X
 
 
 
-def train_model_and_evaluate(X_train, X_test, y_train, y_test):
-
-    # Lambda: regularization parameter that reduces the prediction’s sensitivity to individual observations
-    # Gamma: minimum loss reduction required to make a further partition on a leaf node of the tree
-    regressor = XGBRegressor(
-        n_estimators=100,
-        reg_lambda=1,
-        gamma=0,
-        max_depth=3
-    )
-
-    print(regressor)
+def train_model_and_evaluate(X_train, X_test, y_train, y_test, X):
 
     X_train = X_train.copy()
     y_train = y_train.copy()
     X_test = X_test.copy()
 
-    print("...fitting regressor to training data")
-    regressor.fit(X_train, y_train)
-    print("~~~ Done fitting model ~~~")
+    # Lambda: regularization parameter that reduces the prediction’s sensitivity to individual observations
+    # Gamma: minimum loss reduction required to make a further partition on a leaf node of the tree
+    params = {"colsample_bytree": stats.uniform(0.7, 0.3),
+            "gamma": stats.uniform(0, 0.5),
+            "learning_rate": stats.uniform(0.003, 0.3), # default 0.1 
+            "max_depth": randint(2, 6), # default 3
+            "n_estimators": randint(100, 250), # default 100
+            "subsample": stats.uniform(0.6, 0.4)
+            }
 
-    print("XGBoost Feature Importance:")
-    print(pd.DataFrame(regressor.feature_importances_.reshape(1, -1), columns=X_train.columns))
+    numFolds = 5
+    folds = KFold(n_splits=numFolds, shuffle=True)
+    
+    xgb_model = XGBRegressor(objective="reg:linear", random_state=92)
+
+    print(xgb_model)
+
+    xgb_search = RandomizedSearchCV(xgb_model, 
+    param_distributions=params, 
+    random_state=42, 
+    n_iter=4, 
+    cv=folds, 
+    verbose=1, 
+    n_jobs=1, 
+    return_train_score=True
+    )
+
+    print("...tuning models...")
+    xgb_search.fit(X_train, y_train)
+    print("~~~ Done tuning models ~~~")
+
+    # print("XGBoost Feature Importance:")
+    # print(pd.DataFrame(xgb_search.feature_importances_.reshape(1, -1), columns=X_train.columns))
+
+    print(xgb_search.cv_results_['mean_train_score'])
 
     # call predictions on the test set
-    y_pred = regressor.predict(X_test)
+    #y_pred = regressor.predict(X_test)
 
-    print("Model MSE:", mean_squared_error(y_test, y_pred))
+    #print("Model MSE:", mean_squared_error(y_test, y_pred))
+
+    y_pred = 'cheese'
 
     return y_pred
 
@@ -134,11 +156,11 @@ def main(encode_type):
         "encode_type not defined, categorical features not encoded, aborting..."
         sys.exit()
 
-    X_train, X_test, y_train, y_test = training_split(df=df_features_numeric, target='last_sale_total_price_adj', test_size=0.20)
+    X_train, X_test, y_train, y_test, X = training_split(df=df_features_numeric, target='last_sale_total_price_adj', test_size=0.20)
 
-    y_pred = train_model_and_evaluate(X_train, X_test, y_train, y_test)
+    y_pred = train_model_and_evaluate(X_train, X_test, y_train, y_test, X)
 
-    joined_results = post_process_and_write_results(y_test=y_test, y_pred=y_pred, X_test=X_test, encode_type=encode_type)
+    #joined_results = post_process_and_write_results(y_test=y_test, y_pred=y_pred, X_test=X_test, encode_type=encode_type)
 
 
 if __name__== "__main__" :

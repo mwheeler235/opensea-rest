@@ -20,12 +20,12 @@ This is an excerpt from an apt summary of the Cryptovoxel community: https://www
 
 Below are the features extracted from the raw JSON data:
 
-*'cv_plotSize_m_sq':  Plot size in square meters. 
-*'cv_OCdistance_m':   Distance from the Origin. 
-*'cv_buildHeight_m':  Build height in meters. 
-*'cv_floor_elev_m':   Base floor elevation in meters. 
-*'neighborhood':      Text neighborhood name. 
-*'near_to':           Sub neighborhoods that location is near. 
+*'cv_plotSize_m_sq':  Plot size in square meters <br/>
+*'cv_OCdistance_m':   Distance from the Origin <br/>
+*'cv_buildHeight_m':  Build height in meters <br/>
+*'cv_floor_elev_m':   Base floor elevation in meters <br/>
+*'neighborhood':      Text neighborhood name <br/>
+*'near_to':           Sub neighborhoods that location is near <br/>
 
 'Neighborhood' and 'Near To" are categorical fields and must be encoded for ZXBoost to consume. The following encoding methods are explored:
 

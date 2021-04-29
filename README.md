@@ -14,7 +14,7 @@ This is an excerpt from an apt summary of the Cryptovoxel community: https://www
 
 ## Data snapshot:
 
-![png](https://github.com/datavizhokie/opensea-rest/blob/main/tableau_viz.png)
+<img src="https://github.com/datavizhokie/opensea-rest/blob/main/tableau_viz.png" width="700" height="625">
 
 ## Data considerations
 TODO

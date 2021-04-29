@@ -51,9 +51,9 @@ def categorical_encode(df, target, cat_fields):
 
 
 def one_hot_encode(df, cat_field):
-    one_hot_encoded_nbrhd = pd.get_dummies(df[cat_field])
+    one_hot_encoded_fields = pd.get_dummies(df[cat_field])
 
-    df_feat_and_1he_feat = df.join(one_hot_encoded_nbrhd).drop(columns = cat_field, axis = 1)
+    df_feat_and_1he_feat = df.join(one_hot_encoded_fields).drop(columns = cat_field, axis = 1)
 
     return df_feat_and_1he_feat
 
@@ -79,19 +79,22 @@ def train_model_and_evaluate(X_train, X_test, y_train, y_test, X):
 
     # Lambda: regularization parameter that reduces the prediction’s sensitivity to individual observations
     # Gamma: minimum loss reduction required to make a further partition on a leaf node of the tree
+   
+    # Hyperparameter ranges:
     params = {"colsample_bytree": stats.uniform(0.7, 0.3),
             "gamma": stats.uniform(0, 0.5),
-            "learning_rate": stats.uniform(0.003, 0.3), # default 0.1 
-            "max_depth": randint(2, 6), # default 3
+            "learning_rate": stats.uniform(0.001, 0.2), # default 0.1 
+            "max_depth": randint(2, 4), # default 3
             "n_estimators": randint(100, 250), # default 100
-            "subsample": stats.uniform(0.6, 0.4)
+            "subsample": stats.uniform(0.6, 0.4),
+            "min_child_weight": stats.uniform(1, 3)
             }
 
     numFolds    = 5
     n_iter      = 4
     folds = KFold(n_splits=numFolds, shuffle=True)
     
-    xgb_model = XGBRegressor(objective="reg:squarederror", random_state=92)
+    xgb_model = XGBRegressor(objective="reg:squarederror", random_state=29)
 
     print(xgb_model)
 
@@ -116,9 +119,6 @@ def train_model_and_evaluate(X_train, X_test, y_train, y_test, X):
     print("\n The best estimator across all searched params:\n", xgb_search.best_estimator_)
     print("\n The best score across ALL searched params:\n", xgb_search.best_score_)
     print("\n The best parameters across ALL searched params:\n", xgb_search.best_params_)
-
-    # for key, value in xgb_search.cv_results.items():
-    #     print(key, value)
 
     # call predictions on the test set
     y_pred = xgb_search.predict(X_test)
@@ -152,14 +152,16 @@ def post_process_and_write_results(y_test, y_pred, X_test, encode_type):
 def main(encode_type):
     
     df_features = read_and_define_scope(file_name = 'opensea_cryptovoxels_limit=5000_exDTMT=2021-04-27_09_52_41.csv', 
-    desired_features = ['last_sale_total_price_adj','cv_plotSize_m_sq','cv_OCdistance_m','cv_buildHeight_m','cv_floor_elev_m','neighborhood'], 
+    desired_features = ['last_sale_total_price_adj','cv_plotSize_m_sq','cv_OCdistance_m','cv_buildHeight_m','cv_floor_elev_m','neighborhood','near_to'], 
     target = 'last_sale_total_price_adj'
     )
 
     if encode_type == '1HE':
         df_features_numeric = one_hot_encode(df=df_features, cat_field='neighborhood')
+        df_features_numeric = one_hot_encode(df=df_features_numeric, cat_field='near_to')
     elif encode_type == 'cat_encode':
         df_features_numeric = categorical_encode(df=df_features, target='last_sale_total_price_adj', cat_fields=['neighborhood'])
+        df_features_numeric = categorical_encode(df=df_features_numeric, target='last_sale_total_price_adj', cat_fields=['near_to'])
     else:
         "encode_type not defined, categorical features not encoded, aborting..."
         sys.exit()

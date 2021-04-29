@@ -88,7 +88,7 @@ def train_model_and_evaluate(X_train, X_test, y_train, y_test, X):
             }
 
     numFolds    = 5
-    n_iter      = 10
+    n_iter      = 4
     folds = KFold(n_splits=numFolds, shuffle=True)
     
     xgb_model = XGBRegressor(objective="reg:squarederror", random_state=92)
@@ -174,5 +174,5 @@ def main(encode_type):
 if __name__== "__main__" :
 
     ## Select preferred encoding method
-    #main(encode_type = '1HE')
-    main(encode_type = 'cat_encode')
+    main(encode_type = '1HE')
+    #main(encode_type = 'cat_encode')

@@ -24,3 +24,8 @@ Tableau viz: https://public.tableau.com/profile/matt.wheeler#!/vizhome/Cryptovox
 ## Modeling with XGBoost
 
 XGBoost is an optimized distributed gradient boosting library designed to be highly efficient, flexible and portable. I am using a XGBoost regressor to predict cryptovoxol home sales using features such as *Plot Size* and *Distance from Origin City*.
+
+Intial tuning jobs yield the following results, comparing the Neighborhood field as One Hot Encoded and as Categorical Encoded:
+
+![png](https://github.com/datavizhokie/opensea-rest/blob/main/xgb_initial_1he.png)
+![png](https://github.com/datavizhokie/opensea-rest/blob/main/xgb_initial_cat_encode.png)

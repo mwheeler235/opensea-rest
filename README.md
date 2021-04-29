@@ -1,8 +1,6 @@
 # opensea-rest
 A pipeline to automate data extraction from opensea.io REST API and then model the asset prices using XGBoost or other frameworks. The data scope is Cryptovoxel virtual homes.
 
-<img src="https://github.com/datavizhokie/opensea-rest/blob/main/opensea.png" width="200" height="100">
-
 https://opensea.io/
 
 ## What are we actually talking about with Cryptovoxels?

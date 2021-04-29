@@ -1,6 +1,6 @@
 from numpy import loadtxt
 from xgboost import XGBRegressor
-from sklearn.model_selection import train_test_split, RandomizedSearchCV, KFold
+from sklearn.model_selection import train_test_split, RandomizedSearchCV, KFold, GridSearchCV
 from sklearn.metrics import mean_squared_error
 from sklearn import preprocessing
 import pandas as pd
@@ -87,38 +87,46 @@ def train_model_and_evaluate(X_train, X_test, y_train, y_test, X):
             "subsample": stats.uniform(0.6, 0.4)
             }
 
-    numFolds = 5
+    numFolds    = 5
+    n_iter      = 10
     folds = KFold(n_splits=numFolds, shuffle=True)
     
-    xgb_model = XGBRegressor(objective="reg:linear", random_state=92)
+    xgb_model = XGBRegressor(objective="reg:squarederror", random_state=92)
 
     print(xgb_model)
 
     xgb_search = RandomizedSearchCV(xgb_model, 
     param_distributions=params, 
     random_state=42, 
-    n_iter=4, 
+    n_iter=n_iter, 
     cv=folds, 
     verbose=1, 
     n_jobs=1, 
-    return_train_score=True
+    return_train_score=True,
+    refit=True # this selects the best estimator for retraining
     )
 
-    print("...tuning models...")
+    print(f"...tuning models with {n_iter} iterations")
     xgb_search.fit(X_train, y_train)
     print("~~~ Done tuning models ~~~")
 
     # print("XGBoost Feature Importance:")
     # print(pd.DataFrame(xgb_search.feature_importances_.reshape(1, -1), columns=X_train.columns))
 
-    print(xgb_search.cv_results_['mean_train_score'])
+    print("\n The best estimator across all searched params:\n", xgb_search.best_estimator_)
+    print("\n The best score across ALL searched params:\n", xgb_search.best_score_)
+    print("\n The best parameters across ALL searched params:\n", xgb_search.best_params_)
+
+    # for key, value in xgb_search.cv_results.items():
+    #     print(key, value)
 
     # call predictions on the test set
-    #y_pred = regressor.predict(X_test)
+    y_pred = xgb_search.predict(X_test)
 
-    #print("Model MSE:", mean_squared_error(y_test, y_pred))
-
-    y_pred = 'cheese'
+    mse = mean_squared_error(y_test, y_pred)
+    rmse = np.sqrt(mse)
+    print('Model MSE:', mse)
+    print('Model RMSE:', rmse)
 
     return y_pred
 
@@ -160,7 +168,7 @@ def main(encode_type):
 
     y_pred = train_model_and_evaluate(X_train, X_test, y_train, y_test, X)
 
-    #joined_results = post_process_and_write_results(y_test=y_test, y_pred=y_pred, X_test=X_test, encode_type=encode_type)
+    joined_results = post_process_and_write_results(y_test=y_test, y_pred=y_pred, X_test=X_test, encode_type=encode_type)
 
 
 if __name__== "__main__" :

@@ -14,7 +14,7 @@ This is an excerpt from an apt summary of the Cryptovoxel community: https://www
 
 ## Data snapshot:
 
-<img src="https://github.com/datavizhokie/opensea-rest/blob/main/tableau_viz.png" width="700" height="625">
+<img src="https://github.com/datavizhokie/opensea-rest/blob/main/tableau_viz.png" width="600" height="525">
 
 ## Data considerations
 
@@ -27,10 +27,10 @@ Below are the features extracted from the raw JSON data:
 *'neighborhood':      Text neighborhood name <br/>
 *'near_to':           Sub neighborhoods that location is near <br/>
 
-'Neighborhood' and 'Near To" are categorical fields and must be encoded for ZXBoost to consume. The following encoding methods are explored:
+'Neighborhood' and 'Near To" are categorical fields and must be encoded for XGBoost to consume. The following encoding methods are explored:
 
-* One Hot Encoding (a new field for every attribute of the field)
-* Categorical Encoding (field attributes are converted to unique numeric values)
+* One Hot Encoding (a new field for every attribute of the field) <br/>
+* Categorical Encoding (field attributes are converted to unique numeric values) <br/>
 
 Tableau viz of training data: https://public.tableau.com/profile/matt.wheeler#!/vizhome/CryptovoxelData/CryptovoxelVirtualHomes
 

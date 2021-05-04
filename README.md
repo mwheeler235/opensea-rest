@@ -15,8 +15,7 @@ This is an excerpt from an apt summary of the Cryptovoxel community: https://www
 
 Upon inital analysis of the target (sale price), we notice that the distribution is certainly right skewed:
 
-<img src="https://github.com/datavizhokie/opensea-rest/blob/main/Initial sale price distribution.png" width="350" height="300">
-<img src="https://github.com/datavizhokie/opensea-rest/blob/main/Initial sale price QQ plot.png" width="350" height="300">
+<img src="https://github.com/datavizhokie/opensea-rest/blob/main/Initial sale price distribution.png" width="350" height="300"><img src="https://github.com/datavizhokie/opensea-rest/blob/main/Initial sale price QQ plot.png" width="350" height="300">
 
 We will be transforming the sale price to be more normal...TODO
 

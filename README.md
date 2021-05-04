@@ -10,11 +10,16 @@ https://opensea.io/
 This is an excerpt from an apt summary of the Cryptovoxel community: https://www.buildblockchain.tech/newsletter/issues/no-101-the-weird-world-of-cryptovoxels
 
 
-## Data snapshot:
-
-<img src="https://github.com/datavizhokie/opensea-rest/blob/main/tableau_viz.png" width="600" height="525">
 
 ## Data considerations
+
+Upon inital analysis of the target (sale price), we notice that the distribution is certainly right skewed:
+
+<img src="https://github.com/datavizhokie/opensea-rest/blob/main/Initial sale price distribution.png" width="350" height="300">
+<img src="https://github.com/datavizhokie/opensea-rest/blob/main/Initial sale price QQ plot.png" width="350" height="300">
+
+We will be transforming the sale price to be more normal...TODO
+
 
 Below are the features extracted from the raw JSON data:
 

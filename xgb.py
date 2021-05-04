@@ -1,13 +1,16 @@
 from numpy import loadtxt
 from xgboost import XGBRegressor
 from sklearn.model_selection import train_test_split, RandomizedSearchCV, KFold, GridSearchCV
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, explained_variance_score
 from sklearn import preprocessing
 import pandas as pd
 import numpy as np
 import sys
 from scipy import stats
-from scipy.stats import randint
+from scipy.stats import randint, norm
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 
 def read_and_define_scope(file_name, desired_features, target):
 
@@ -25,6 +28,23 @@ def read_and_define_scope(file_name, desired_features, target):
     # remove records where target is NULL
     df_features = df_features[df_features[target].notnull()]
     print(f"Data with non-null target has {df_features[target].count()} records.")
+
+    sns.distplot(df_features[target] , fit=norm)
+
+    # Get the fitted parameters used by the function
+    (mu, sigma) = norm.fit(df_features[target])
+    print( '\n mu = {:.2f} and sigma = {:.2f}\n'.format(mu, sigma))
+
+    #Now plot the distribution
+    plt.legend(['Normal dist. ($\mu=$ {:.2f} and $\sigma=$ {:.2f} )'.format(mu, sigma)],
+                loc='best')
+    plt.ylabel('Frequency')
+    plt.title('Sale Price distribution')
+
+    #Get also the QQ-plot
+    fig = plt.figure()
+    res = stats.probplot(df_features[target], plot=plt)
+    plt.show()
 
     return df_features
 
@@ -82,6 +102,7 @@ def train_model_and_evaluate(X_train, X_test, y_train, y_test, X):
    
     # Hyperparameter ranges:
     params = {"colsample_bytree": stats.uniform(0.7, 0.3),
+            "colsample_bynode": stats.uniform(0.5, 1),
             "gamma": stats.uniform(0, 0.5),
             "learning_rate": stats.uniform(0.001, 0.2), # default 0.1 
             "max_depth": randint(2, 4), # default 3
@@ -104,7 +125,7 @@ def train_model_and_evaluate(X_train, X_test, y_train, y_test, X):
     n_iter=n_iter, 
     cv=folds, 
     verbose=1, 
-    n_jobs=1, 
+    n_jobs=2, # parallel processing
     return_train_score=True,
     refit=True # this selects the best estimator for retraining
     )
@@ -127,6 +148,8 @@ def train_model_and_evaluate(X_train, X_test, y_train, y_test, X):
     rmse = np.sqrt(mse)
     print('Model MSE:', mse)
     print('Model RMSE:', rmse)
+
+    print('Explained Variance Score', explained_variance_score(y_pred, y_test))
 
     return y_pred
 
@@ -151,10 +174,12 @@ def post_process_and_write_results(y_test, y_pred, X_test, encode_type):
 
 def main(encode_type):
     
-    df_features = read_and_define_scope(file_name = 'opensea_cryptovoxels_limit=5000_exDTMT=2021-04-27_09_52_41.csv', 
+    df_features = read_and_define_scope(file_name = 'opensea_cryptovoxels_limit=6000_exDTMT=2021-05-04_09_45_55.csv', 
     desired_features = ['last_sale_total_price_adj','cv_plotSize_m_sq','cv_OCdistance_m','cv_buildHeight_m','cv_floor_elev_m','neighborhood','near_to'], 
     target = 'last_sale_total_price_adj'
     )
+
+    sys.exit()
 
     if encode_type == '1HE':
         df_features_numeric = one_hot_encode(df=df_features, cat_field='neighborhood')

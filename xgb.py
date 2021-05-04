@@ -46,7 +46,33 @@ def read_and_define_scope(file_name, desired_features, target):
     res = stats.probplot(df_features[target], plot=plt)
     plt.show()
 
+
+    ## normalize then viz
+
+    sns.distplot(np.log1p(df[target]) , fit=norm)
+    # Get the fitted parameters used by the function
+    (mu, sigma) = norm.fit(np.log1p(df[target]))
+    print( '\n mu = {:.2f} and sigma = {:.2f}\n'.format(mu, sigma))
+
+    #Now plot the distribution
+    plt.legend(['Normal dist. ($\mu=$ {:.2f} and $\sigma=$ {:.2f} )'.format(mu, sigma)],
+                loc='best')
+    plt.ylabel('Frequency')
+    plt.title('log(Sale Price+1) distribution')
+
+    #Get also the QQ-plot
+    fig = plt.figure()
+    res = stats.probplot(np.log1p(df[target]), plot=plt)
+    plt.show()
+
+    ##TODO correlation between sale price and numeric features
+
     return df_features
+
+
+def normalize_target():
+    #TODO
+    pass
 
 
 def categorical_encode(df, target, cat_fields):

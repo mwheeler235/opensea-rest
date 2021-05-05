@@ -19,6 +19,9 @@ Upon inital analysis of the target (sale price), we notice that the distribution
 
 We will be transforming the sale price to be more normal...TODO
 
+Pearson correlations show that none of the predictors have high correlations.
+<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/initial_pearson_corr.png" width="250" height="250">
+
 
 Below are the features extracted from the raw JSON data:
 

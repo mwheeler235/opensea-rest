@@ -10,6 +10,7 @@ from scipy import stats
 from scipy.stats import randint, norm
 import matplotlib.pyplot as plt
 import seaborn as sns
+import time
 
 
 def viz_distribution(df, target, title):
@@ -18,13 +19,13 @@ def viz_distribution(df, target, title):
     (mu, sigma) = norm.fit(df[target])
     print( '\n mu = {:.2f} and sigma = {:.2f}\n'.format(mu, sigma))
 
-    #Now plot the distribution
+    # plot the distribution
     plt.legend(['Normal dist. ($\mu=$ {:.2f} and $\sigma=$ {:.2f} )'.format(mu, sigma)],
                 loc='best')
     plt.ylabel('Frequency')
     plt.title(title)
 
-    #Get also the QQ-plot
+    # QQ-plot
     fig = plt.figure()
     res = stats.probplot(df[target], plot=plt)
     plt.show()
@@ -36,6 +37,16 @@ def pearson_correlations(df, target):
     plt.figure(figsize=(10, 8))
     sns.heatmap(df.drop([target],axis=1).corr(), square=True)
     plt.suptitle("Pearson Correlation Heatmap")
+    plt.show()
+
+
+def corr_with_target(df, target):
+    
+    corr_with_sale_price = df.corr()[target].sort_values(ascending=False)
+    plt.figure(figsize=(5,5))
+    plt.subplots_adjust(bottom=.30)
+    corr_with_sale_price.drop(target).plot.bar()
+    plt.suptitle("Numeric Predictor Correlation with Target")
     plt.show()
 
 
@@ -66,6 +77,9 @@ def read_and_define_scope(file_name, desired_features, target):
 
     # correlation between sale price and numeric features
     pearson_correlations(df=df_features, target=target)
+
+    # get predictor correlations with target BEFORE encoding (too many encoded fields to viz)
+    corr_with_target(df=df_features, target='last_sale_total_price_adj')
 
     return df_features
 
@@ -205,8 +219,6 @@ def main(encode_type):
     target = 'last_sale_total_price_adj'
     )
 
-    sys.exit()
-
     if encode_type == '1HE':
         df_features_numeric = one_hot_encode(df=df_features, cat_field='neighborhood')
         df_features_numeric = one_hot_encode(df=df_features_numeric, cat_field='near_to')
@@ -217,10 +229,15 @@ def main(encode_type):
         "encode_type not defined, categorical features not encoded, aborting..."
         sys.exit()
 
+
+    sys.exit()
+    # training split
     X_train, X_test, y_train, y_test, X = training_split(df=df_features_numeric, target='last_sale_total_price_adj', test_size=0.20)
 
+    # get predictions
     y_pred = train_model_and_evaluate(X_train, X_test, y_train, y_test, X)
 
+    # post process results and write to CSV
     joined_results = post_process_and_write_results(y_test=y_test, y_pred=y_pred, X_test=X_test, encode_type=encode_type)
 
 

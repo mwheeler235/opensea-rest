@@ -12,6 +12,29 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
+def viz_distribution(df, target, title):
+
+    # Get the fitted parameters used by the function
+    (mu, sigma) = norm.fit(df[target])
+    print( '\n mu = {:.2f} and sigma = {:.2f}\n'.format(mu, sigma))
+
+    #Now plot the distribution
+    plt.legend(['Normal dist. ($\mu=$ {:.2f} and $\sigma=$ {:.2f} )'.format(mu, sigma)],
+                loc='best')
+    plt.ylabel('Frequency')
+    plt.title(title)
+
+    #Get also the QQ-plot
+    fig = plt.figure()
+    res = stats.probplot(df[target], plot=plt)
+    plt.show()
+
+
+def viz_correlations():
+    pass
+    #TODO
+
+
 def read_and_define_scope(file_name, desired_features, target):
 
     df = pd.read_csv(f'./cryptovoxel_data/{file_name}')
@@ -29,43 +52,15 @@ def read_and_define_scope(file_name, desired_features, target):
     df_features = df_features[df_features[target].notnull()]
     print(f"Data with non-null target has {df_features[target].count()} records.")
 
-    sns.distplot(df_features[target] , fit=norm)
+    # viz target distribution
+    sns.distplot(df_features[target], fit=norm)
+    viz_distribution(df=df_features, target=target, title='Sale Price distribution')
 
-    # Get the fitted parameters used by the function
-    (mu, sigma) = norm.fit(df_features[target])
-    print( '\n mu = {:.2f} and sigma = {:.2f}\n'.format(mu, sigma))
+    # viz normalized target distribution
+    sns.distplot(np.log1p(df[target]), fit=norm)
+    viz_distribution(df=df_features, target=target, title='log(Sale Price+1) distribution')
 
-    #Now plot the distribution
-    plt.legend(['Normal dist. ($\mu=$ {:.2f} and $\sigma=$ {:.2f} )'.format(mu, sigma)],
-                loc='best')
-    plt.ylabel('Frequency')
-    plt.title('Sale Price distribution')
-
-    #Get also the QQ-plot
-    fig = plt.figure()
-    res = stats.probplot(df_features[target], plot=plt)
-    plt.show()
-
-
-    ## normalize then viz
-
-    sns.distplot(np.log1p(df[target]) , fit=norm)
-    # Get the fitted parameters used by the function
-    (mu, sigma) = norm.fit(np.log1p(df[target]))
-    print( '\n mu = {:.2f} and sigma = {:.2f}\n'.format(mu, sigma))
-
-    #Now plot the distribution
-    plt.legend(['Normal dist. ($\mu=$ {:.2f} and $\sigma=$ {:.2f} )'.format(mu, sigma)],
-                loc='best')
-    plt.ylabel('Frequency')
-    plt.title('log(Sale Price+1) distribution')
-
-    #Get also the QQ-plot
-    fig = plt.figure()
-    res = stats.probplot(np.log1p(df[target]), plot=plt)
-    plt.show()
-
-    ##TODO correlation between sale price and numeric features
+    #TODO correlation between sale price and numeric features
 
     return df_features
 

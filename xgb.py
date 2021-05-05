@@ -30,9 +30,13 @@ def viz_distribution(df, target, title):
     plt.show()
 
 
-def viz_correlations():
-    pass
-    #TODO
+def pearson_correlations(df, target):
+
+    pd.set_option('precision',2)
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(df.drop([target],axis=1).corr(), square=True)
+    plt.suptitle("Pearson Correlation Heatmap")
+    plt.show()
 
 
 def read_and_define_scope(file_name, desired_features, target):
@@ -60,7 +64,8 @@ def read_and_define_scope(file_name, desired_features, target):
     sns.distplot(np.log1p(df[target]), fit=norm)
     viz_distribution(df=df_features, target=target, title='log(Sale Price+1) distribution')
 
-    #TODO correlation between sale price and numeric features
+    # correlation between sale price and numeric features
+    pearson_correlations(df=df_features, target=target)
 
     return df_features
 

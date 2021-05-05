@@ -15,7 +15,7 @@ This is an excerpt from an apt summary of the Cryptovoxel community: https://www
 
 Upon inital analysis of the target (sale price), we notice that the distribution is certainly right skewed:
 
-<img src="https://github.com/datavizhokie/opensea-rest/blob/main/Initial sale price distribution.png" width="350" height="300"><img src="https://github.com/datavizhokie/opensea-rest/blob/main/Initial sale price QQ plot.png" width="350" height="300">
+<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/Initial sale price distribution.png" width="350" height="300"><img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/Initial sale price QQ plot.png" width="350" height="300">
 
 We will be transforming the sale price to be more normal...TODO
 
@@ -44,8 +44,8 @@ XGBoost is an optimized distributed gradient boosting library designed to be hig
 
 Intial tuning jobs yield the following results, comparing the Neighborhood field as One Hot Encoded and as Categorical Encoded:
 
-<img src="https://github.com/datavizhokie/opensea-rest/blob/main/xgb_initial_1he.png" width="450" height="400">
-<img src="https://github.com/datavizhokie/opensea-rest/blob/main/xgb_initial_cat_encode.png" width="450" height="400">
+<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/xgb_initial_1he.png" width="450" height="400">
+<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/xgb_initial_cat_encode.png" width="450" height="400">
 
 ### Modeling with Normalized Data
 

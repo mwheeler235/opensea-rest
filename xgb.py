@@ -63,7 +63,7 @@ def read_and_define_scope(file_name, desired_features, target):
     # subset columns to target and desired features
     df_features = df[desired_features]
 
-    # remove records where target is NULL
+    # remove records where target is NULL (only look at assets that have been sold already)
     df_features = df_features[df_features[target].notnull()]
     print(f"Data with non-null target has {df_features[target].count()} records.")
 

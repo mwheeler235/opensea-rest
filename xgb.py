@@ -34,7 +34,8 @@ def viz_distribution(df, target, title):
 def pearson_correlations(df, target):
 
     pd.set_option('precision',2)
-    plt.figure(figsize=(10, 8))
+    plt.figure(figsize=(5, 5))
+    plt.subplots_adjust(left=.3, bottom=.3)
     sns.heatmap(df.drop([target],axis=1).corr(), square=True)
     plt.suptitle("Pearson Correlation Heatmap")
     plt.show()

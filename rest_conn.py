@@ -17,19 +17,10 @@ today = date.today()
 date_y_m_d = today.strftime("%Y-%m-%d")
 
 
-### utilities
-def to_datetime():
-    pass
-
-def regex_extract_numeric():
-    pass
-
-
 def set_nan(df, cols):
     
     df['field'] = np.nan
     return df
-
 
 
 def paginate(now, max_per_page, limit, url, write_raw):
@@ -98,7 +89,7 @@ def paginate(now, max_per_page, limit, url, write_raw):
 
     # write full column data if specified
     if write_raw == True:
-        appended_data.to_csv(f'opensea_cryptovoxel_FULL_data_with_limit={limit}_exDTMT={now}.csv')
+        appended_data.to_csv(f'opensea_cryptovoxel_FULL_data_with_limit={limit}_exDTMT={now}.csv', index=False)
         print("Raw data has been written to CSV.")
     else:
         print(f"Write raw data set to: {write_raw}")
@@ -182,10 +173,6 @@ def extract_fields(df):
             df_odd_recs = set_nan(df_odd_recs, 'neighborhood_temp')
             df_odd_recs = set_nan(df_odd_recs, 'neighborhood')
         
-        # try:
-        #     df_odd_recs["neighborhood"] = df_odd_recs.neighborhood_temp.str.split("near ", expand=True)[1]
-        # except:
-        #     df_odd_recs = set_nan(df_odd_recs, 'neighborhood')
 
     # if odd records do not exist, set main to source DF and df_odd_recs to empty
     else:
@@ -218,11 +205,6 @@ def extract_fields(df):
         df_main_recs = set_nan(df_main_recs, 'neighborhood_temp')
         df_main_recs = set_nan(df_main_recs, 'neighborhood')
 
-    # try:
-    #     df_main_recs["neighborhood"] = df_main_recs.neighborhood_temp.str.split("on ", expand=True)[1]
-    # except:
-    #     df_main_recs["neighborhood"] = np.nan
-
 
     # stack both DFs
     df = pd.concat([df_main_recs, df_odd_recs], axis=0)
@@ -248,7 +230,7 @@ def write(df, limit):
 
 def main():
 
-    slim_data, limit    = paginate(now=now, max_per_page=max_per_page, limit=6000, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c", write_raw=False)
+    slim_data, limit    = paginate(now=now, max_per_page=max_per_page, limit=500, url = "https://api.opensea.io/api/v1/assets?asset_contract_address=0x79986af15539de2db9a5086382daeda917a9cf0c", write_raw=True)
     final_data          = extract_fields(df=slim_data)
     write_msg           = write(df=final_data, limit=limit)
     

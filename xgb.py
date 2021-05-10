@@ -156,18 +156,19 @@ def train_model_and_evaluate(X_train, X_test, y_train, y_test, X):
     # Gamma: minimum loss reduction required to make a further partition on a leaf node of the tree
    
     # Hyperparameter ranges:
-    params = {"colsample_bytree": stats.uniform(0.7, 0.3),
+    params = {"colsample_bytree": stats.uniform(0.7, 0.3), # subsample ratio of columns when constructing each tree. Subsampling occurs once for every tree constructed
             #"colsample_bynode": stats.uniform(0.5, 1),
-            "gamma": stats.uniform(0, 0.5),
-            "learning_rate": stats.uniform(0.001, 0.2), # default 0.1 
-            "max_depth": randint(2, 4), # default 3
+            "gamma": stats.uniform(0, 2), # defaut=0
+            "lambda": stats.uniform(0.5, 1.5),
+            "learning_rate": stats.uniform(0.001, 0.2), # default 0.3 
+            "max_depth": randint(2, 6), # default 6; Maximum depth of a tree. Increasing this value will make the model more complex and more likely to overfit
             "n_estimators": randint(100, 250), # default 100
-            "subsample": stats.uniform(0.6, 0.4),
+            "subsample": stats.uniform(0.7, 0.3), # Subsample ratio of the training instances. Setting it to 0.5 means randomly sample half of the training data prior to growing trees
             "min_child_weight": stats.uniform(1, 3)
             }
 
     numFolds    = 5
-    n_iter      = 4
+    n_iter      = 3
     folds = KFold(n_splits=numFolds, shuffle=True)
     
     xgb_model = XGBRegressor(objective="reg:squarederror", random_state=29)

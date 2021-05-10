@@ -56,6 +56,13 @@ Intial tuning jobs yield the following results, comparing the Neighborhood field
 <img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/xgb_initial_1he.png" width="450" height="400">
 <img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/xgb_initial_cat_encode.png" width="450" height="400">
 
-### Modeling with Normalized Data
 
-TODO
+One hot encoding seems to perform slightly better.
+
+### Modeling with Outliers Removed
+
+After removing outliers with Prices greather than 70 ETH:
+
+<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/xgb_outliers_removed_1he.png" width="450" height="400">
+
+Clearly, more feature engineering needs to be done to produce an optimal model.

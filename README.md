@@ -17,7 +17,10 @@ Upon inital analysis of the target (sale price), we notice that the distribution
 
 <img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/Initial sale price distribution.png" width="350" height="300"><img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/Initial sale price QQ plot.png" width="350" height="300">
 
-We will be transforming the sale price to be more normal...TODO
+Modeling will be performed on the original target and also on the a normalized target. Below is the distribution after normalizing the target:
+
+<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/log1p sale price distribution.png" width="350" height="300"><img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/log1p sale price QQ plot.png" width="350" height="300">
+
 
 Pearson correlations show that none of the initial predictors have high correlations. Looking at the same predictors, we see that building height and plot size are most highly correlated with the target (Sale Price).
 

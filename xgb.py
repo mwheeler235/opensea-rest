@@ -85,9 +85,12 @@ def read_and_define_scope(file_name, desired_features, target):
     return df_features
 
 
-def normalize_target():
-    #TODO
-    pass
+def normalize_target(df, target):
+
+    df[target] = np.log1p(df[target])
+    print("Target has been normalized prior to modeling.")
+    
+    return df
 
 
 def categorical_encode(df, target, cat_fields):
@@ -213,7 +216,7 @@ def post_process_and_write_results(y_test, y_pred, X_test, encode_type):
     return joined_results
 
 
-def main(encode_type):
+def main(encode_type, norm_target):
     
     df_features = read_and_define_scope(file_name = 'opensea_cryptovoxels_limit=6000_exDTMT=2021-05-04_09_45_55.csv', 
     desired_features = ['last_sale_total_price_adj','cv_plotSize_m_sq','cv_OCdistance_m','cv_buildHeight_m','cv_floor_elev_m','neighborhood','near_to'], 
@@ -230,8 +233,12 @@ def main(encode_type):
         "encode_type not defined, categorical features not encoded, aborting..."
         sys.exit()
 
+    if norm_target == True:
+        df_features_numeric = normalize_target(df_features_numeric, 'last_sale_total_price_adj')
+    else:
+        pass
 
-    sys.exit()
+    #sys.exit()
     # training split
     X_train, X_test, y_train, y_test, X = training_split(df=df_features_numeric, target='last_sale_total_price_adj', test_size=0.20)
 
@@ -245,5 +252,5 @@ def main(encode_type):
 if __name__== "__main__" :
 
     ## Select preferred encoding method
-    main(encode_type = '1HE')
+    main(encode_type = '1HE', norm_target = True)
     #main(encode_type = 'cat_encode')

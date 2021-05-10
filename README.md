@@ -15,11 +15,11 @@ This is an excerpt from an apt summary of the Cryptovoxel community: https://www
 
 Upon inital analysis of the target (sale price), we notice that the distribution is certainly right skewed:
 
-<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/Initial sale price distribution.png" width="350" height="300"><img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/Initial sale price QQ plot.png" width="350" height="300">
+<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/Initial sale price distribution.png" width="250" height="200"><img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/Initial sale price QQ plot.png" width="250" height="200">
 
 Modeling will be performed on the original target and also on the a normalized target. Below is the distribution after normalizing the target:
 
-<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/log1p sale price distribution.png" width="350" height="300"><img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/log1p sale price QQ plot.png" width="350" height="300">
+<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/log1p sale price distribution.png" width="350" height="300"><img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/log1p sale price QQ plot.png" width="250" height="200">
 
 
 Pearson correlations show that none of the initial predictors have high correlations. Looking at the same predictors, we see that building height and plot size are most highly correlated with the target (Sale Price).

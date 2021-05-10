@@ -53,8 +53,8 @@ XGBoost is an optimized distributed gradient boosting library designed to be hig
 
 Intial tuning jobs yield the following results, comparing the Neighborhood field as One Hot Encoded and as Categorical Encoded:
 
-<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/xgb_initial_1he.png" width="450" height="400">
-<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/xgb_initial_cat_encode.png" width="450" height="400">
+<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/xgb_initial_1he.png" width="250" height="200">
+<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/xgb_initial_cat_encode.png" width="250" height="200">
 
 
 One hot encoding seems to perform slightly better.
@@ -63,6 +63,6 @@ One hot encoding seems to perform slightly better.
 
 After removing outliers with Prices greather than 70 ETH:
 
-<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/xgb_outliers_removed_1he.png" width="450" height="400">
+<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/xgb_outliers_removed_1he.png" width="250" height="200">
 
 Clearly, more feature engineering needs to be done to produce an optimal model.

@@ -89,7 +89,7 @@ def read_and_define_scope(file_name, desired_features, target, viz):
 
 
 def remove_outliers(df, target, threshold):
-    df = df[(df[target] > threshold)]
+    df = df[(df[target] < threshold)]
 
     print(f"Outliers removed with price > {threshold}")
 
@@ -157,7 +157,7 @@ def train_model_and_evaluate(X_train, X_test, y_train, y_test, X):
    
     # Hyperparameter ranges:
     params = {"colsample_bytree": stats.uniform(0.7, 0.3),
-            "colsample_bynode": stats.uniform(0.5, 1),
+            #"colsample_bynode": stats.uniform(0.5, 1),
             "gamma": stats.uniform(0, 0.5),
             "learning_rate": stats.uniform(0.001, 0.2), # default 0.1 
             "max_depth": randint(2, 4), # default 3
@@ -247,6 +247,7 @@ def main(encode_type, norm_target):
 
     # remove outliers
     df_outliers_removed = remove_outliers(df=df_features_numeric, target='last_sale_total_price_adj', threshold=75)
+    print(f"Data after outlier removal has {len(df_outliers_removed)} records.")
 
     if norm_target == True:
         df_outliers_removed = normalize_target(df=df_outliers_removed, target='last_sale_total_price_adj')
@@ -255,7 +256,7 @@ def main(encode_type, norm_target):
 
     #sys.exit()
     # training split
-    X_train, X_test, y_train, y_test, X = training_split(df=df_outliers_removed, target='last_sale_total_price_adj', test_size=0.20)
+    X_train, X_test, y_train, y_test, X = training_split(df=df_outliers_removed, target='last_sale_total_price_adj', test_size=0.30)
 
     # get predictions
     y_pred = train_model_and_evaluate(X_train, X_test, y_train, y_test, X)
@@ -267,5 +268,5 @@ def main(encode_type, norm_target):
 if __name__== "__main__" :
 
     ## Select preferred encoding method
-    main(encode_type = '1HE', norm_target = True)
+    main(encode_type = '1HE', norm_target = False)
     #main(encode_type = 'cat_encode')

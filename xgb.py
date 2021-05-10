@@ -51,7 +51,7 @@ def corr_with_target(df, target):
     plt.show()
 
 
-def read_and_define_scope(file_name, desired_features, target):
+def read_and_define_scope(file_name, desired_features, target, viz):
 
     df = pd.read_csv(f'./cryptovoxel_data/{file_name}')
     df = df.replace(np.nan, None)
@@ -68,21 +68,32 @@ def read_and_define_scope(file_name, desired_features, target):
     df_features = df_features[df_features[target].notnull()]
     print(f"Data with non-null target has {df_features[target].count()} records.")
 
-    # viz target distribution
-    sns.distplot(df_features[target], fit=norm)
-    viz_distribution(df=df_features, target=target, title='Sale Price distribution')
+    if viz==True:
+        # viz target distribution
+        sns.distplot(df_features[target], fit=norm)
+        viz_distribution(df=df_features, target=target, title='Sale Price distribution')
 
-    # viz normalized target distribution
-    sns.distplot(np.log1p(df[target]), fit=norm)
-    viz_distribution(df=df_features, target=target, title='log(Sale Price+1) distribution')
+        # viz normalized target distribution
+        sns.distplot(np.log1p(df[target]), fit=norm)
+        viz_distribution(df=df_features, target=target, title='log(Sale Price+1) distribution')
 
-    # correlation between sale price and numeric features
-    pearson_correlations(df=df_features, target=target)
+        # correlation between sale price and numeric features
+        pearson_correlations(df=df_features, target=target)
 
-    # get predictor correlations with target BEFORE encoding (too many encoded fields to viz)
-    corr_with_target(df=df_features, target='last_sale_total_price_adj')
+        # get predictor correlations with target BEFORE encoding (too many encoded fields to viz)
+        corr_with_target(df=df_features, target='last_sale_total_price_adj')
+    else:
+        pass
 
     return df_features
+
+
+def remove_outliers(df, target, threshold):
+    df = df[(df[target] > threshold)]
+
+    print(f"Outliers removed with price > {threshold}")
+
+    return df
 
 
 def normalize_target(df, target):
@@ -220,7 +231,8 @@ def main(encode_type, norm_target):
     
     df_features = read_and_define_scope(file_name = 'opensea_cryptovoxels_limit=6000_exDTMT=2021-05-04_09_45_55.csv', 
     desired_features = ['last_sale_total_price_adj','cv_plotSize_m_sq','cv_OCdistance_m','cv_buildHeight_m','cv_floor_elev_m','neighborhood','near_to'], 
-    target = 'last_sale_total_price_adj'
+    target = 'last_sale_total_price_adj',
+    viz=False
     )
 
     if encode_type == '1HE':
@@ -233,14 +245,17 @@ def main(encode_type, norm_target):
         "encode_type not defined, categorical features not encoded, aborting..."
         sys.exit()
 
+    # remove outliers
+    df_outliers_removed = remove_outliers(df=df_features_numeric, target='last_sale_total_price_adj', threshold=75)
+
     if norm_target == True:
-        df_features_numeric = normalize_target(df_features_numeric, 'last_sale_total_price_adj')
+        df_outliers_removed = normalize_target(df=df_outliers_removed, target='last_sale_total_price_adj')
     else:
         pass
 
     #sys.exit()
     # training split
-    X_train, X_test, y_train, y_test, X = training_split(df=df_features_numeric, target='last_sale_total_price_adj', test_size=0.20)
+    X_train, X_test, y_train, y_test, X = training_split(df=df_outliers_removed, target='last_sale_total_price_adj', test_size=0.20)
 
     # get predictions
     y_pred = train_model_and_evaluate(X_train, X_test, y_train, y_test, X)

@@ -53,8 +53,7 @@ XGBoost is an optimized distributed gradient boosting library designed to be hig
 
 Intial tuning jobs yield the following results, comparing the Neighborhood field as One Hot Encoded and as Categorical Encoded:
 
-<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/xgb_initial_1he.png" width="250" height="200">
-<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/xgb_initial_cat_encode.png" width="250" height="200">
+<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/xgb_initial_1he.png" width="250" height="200"><img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/xgb_initial_cat_encode.png" width="250" height="200">
 
 
 One hot encoding seems to perform slightly better.

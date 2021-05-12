@@ -159,7 +159,7 @@ def train_model_and_evaluate(X_train, X_test, y_train, y_test, X):
     params = {"colsample_bytree": stats.uniform(0.7, 0.3), # subsample ratio of columns when constructing each tree. Subsampling occurs once for every tree constructed
             #"colsample_bynode": stats.uniform(0.5, 1),
             "gamma": stats.uniform(0, 2), # defaut=0
-            "lambda": stats.uniform(0.5, 1.5),
+            #"lambda": stats.uniform(0.5, 1.5),
             "learning_rate": stats.uniform(0.001, 0.2), # default 0.3 
             "max_depth": randint(2, 6), # default 6; Maximum depth of a tree. Increasing this value will make the model more complex and more likely to overfit
             "n_estimators": randint(100, 250), # default 100

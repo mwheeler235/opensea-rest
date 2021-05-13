@@ -64,4 +64,8 @@ After removing outliers with Prices greather than 70 ETH:
 
 <img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/xgb_outliers_removed_1he.png" width="250" height="200">
 
-Clearly, more feature engineering needs to be done to produce an optimal model.
+### Comparing to Brick & Mortar Home Sales
+
+Leveraging a rich dataset for brick and mortar home sales, then slicing down to a similar feature set yields the following comparison.
+
+<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/brick_mortar_vs_cryptovoxel.png" width="250" height="200">

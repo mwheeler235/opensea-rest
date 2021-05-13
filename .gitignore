@@ -7,5 +7,6 @@
 *.twb
 *.twbr
 cryptovoxel_data/*
+zillow_data/*
 cryptovoxel_data/.DS_Store
 __pycache__/xgb.cpython-37.pyc

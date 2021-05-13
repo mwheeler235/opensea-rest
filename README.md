@@ -68,4 +68,4 @@ After removing outliers with Prices greather than 70 ETH:
 
 Leveraging a rich dataset for brick and mortar home sales, then slicing down to a similar feature set yields the following comparison.
 
-<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/brick_mortar_vs_cryptovoxel.png" width="250" height="200">
+<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/brick_mortar_vs_cryptovoxel.png" width="500" height="200">

@@ -31,12 +31,12 @@ Pearson correlations show that none of the initial predictors have high correlat
 
 Below are the features extracted from the raw JSON data:
 
-*'cv_plotSize_m_sq':  Plot size in square meters <br/>
-*'cv_OCdistance_m':   Distance from the Origin <br/>
-*'cv_buildHeight_m':  Build height in meters <br/>
-*'cv_floor_elev_m':   Base floor elevation in meters <br/>
-*'neighborhood':      Text neighborhood name <br/>
-*'near_to':           Sub neighborhoods that location is near <br/>
+* 'cv_plotSize_m_sq':  Plot size in square meters <br/>
+* 'cv_OCdistance_m':   Distance from the Origin <br/>
+* 'cv_buildHeight_m':  Build height in meters <br/>
+* 'cv_floor_elev_m':   Base floor elevation in meters <br/>
+* 'neighborhood':      Text neighborhood name <br/>
+* 'near_to':           Sub neighborhoods that location is near <br/>
 
 'Neighborhood' and 'Near To" are categorical fields and must be encoded for XGBoost to consume. The following encoding methods are explored:
 
@@ -67,5 +67,8 @@ After removing outliers with Prices greather than 70 ETH:
 ### Comparing to Brick & Mortar Home Sales
 
 Leveraging a rich dataset for brick and mortar home sales, then slicing down to a similar feature set yields the following comparison.
+
+* Source = https://www.kaggle.com/c/house-prices-advanced-regression-techniques/overview
+* *Features used = ['SalePrice','1stFlrSF','2ndFlrSF','Neighborhood','HouseStyle','GrLivArea']*
 
 <img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/brick_mortar_vs_cryptovoxel.png" width="500" height="200">

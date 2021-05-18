@@ -62,6 +62,8 @@ After removing outliers with Prices greather than 70 ETH:
 
 <img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/xgb_outliers_removed_1he.png" width="250" height="200">
 
+Further scope analysis should produce a more targeted model.
+
 ### Comparing to Brick & Mortar Home Sales
 
 The goal here is to understand how modeling virtual homes compares to modeling actual homes. Leveraging a rich dataset for brick and mortar home sales, then slicing down to a similar feature set yields the following comparison.
@@ -73,4 +75,4 @@ The goal here is to understand how modeling virtual homes compares to modeling a
 
 ## Next Steps
 
-More comparitive analysis should be performed as well as adding additional data sources for the Crypto model.
+More comparitive analysis should be performed as well as adding additional data sources for the Crypto model. Also, scope analysis in terms of outlier removal and smoothing can enhance results.

@@ -73,6 +73,8 @@ The goal here is to understand how modeling virtual homes compares to modeling a
 
 <img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/brick_mortar_vs_cryptovoxel.png" width="500" height="200">
 
+Using RMSE/target mean is clearly not a good comparison for these drastically different price scales. Further metric interpretation is warranted. However, viewing the spread of actual vs. predicted, the brick and mortar model performs much better. Additionally the Crtypo model is overfitting which can be remediated.
+
 ## Next Steps
 
 More comparitive analysis should be performed as well as adding additional data sources for the Crypto model. Also, scope analysis in terms of outlier removal and smoothing can enhance results.

@@ -68,17 +68,6 @@ The RMSE/Mean finally snuck under 1.0! Diving deeper into the model results, we 
 
 This is quite reasonable given the limited features, but further scope analysis and feature exploration should produce an even more efficient model.
 
-### Comparing to Brick & Mortar Home Sales
-
-The goal here is to understand how modeling virtual homes compares to modeling actual homes. Leveraging a rich dataset for brick and mortar home sales, then slicing down to a similar feature set yields the following comparison.
-
-* Source = https://www.kaggle.com/c/house-prices-advanced-regression-techniques/overview
-* *Features used = ['SalePrice','1stFlrSF','2ndFlrSF','Neighborhood','HouseStyle','GrLivArea']*
-
-<img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/brick_mortar_vs_cryptovoxel.png" width="500" height="200">
-
-Using RMSE/target mean is clearly not a good comparison for these drastically different price scales. Further metric interpretation is warranted. However, viewing the spread of actual vs. predicted, the brick and mortar model performs much better. Additionally the Crypto model is overfitting which can be remediated.
-
 ## Next Steps
 
-More comparitive analysis should be performed as well as adding additional data sources for the Crypto model. Also, scope analysis in terms of outlier removal and smoothing can enhance results.
+More comparitive analysis should be performed as well as adding additional data sources for the Crypto model. Also, scope analysis in terms of outlier removal, variablee transformation, and target smoothing can enhance results.

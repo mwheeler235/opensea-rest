@@ -165,7 +165,7 @@ def train_model_and_evaluate(X_train, X_test, y_train, y_test, X):
             }
 
     numFolds    = 5
-    n_iter      = 1
+    n_iter      = 4
     folds = KFold(n_splits=numFolds, shuffle=True)
     
     xgb_model = XGBRegressor(objective="reg:squarederror", random_state=29)
@@ -187,9 +187,6 @@ def train_model_and_evaluate(X_train, X_test, y_train, y_test, X):
     xgb_search.fit(X_train, y_train)
     print("~~~ Done tuning models ~~~")
 
-    # print("XGBoost Feature Importance:")
-    # print(pd.DataFrame(xgb_search.feature_importances_.reshape(1, -1), columns=X_train.columns))
-
     print("\n The best estimator across all searched params:\n", xgb_search.best_estimator_)
     print("\n The best score across ALL searched params:\n", xgb_search.best_score_)
     print("\n The best parameters across ALL searched params:\n", xgb_search.best_params_)
@@ -197,12 +194,17 @@ def train_model_and_evaluate(X_train, X_test, y_train, y_test, X):
     # call predictions on the test set
     y_pred = xgb_search.predict(X_test)
 
+    # obtain mean of actual test target
+    test_mean = y_test.mean()
+
+    # print evaulation metrics
     mse = mean_squared_error(y_test, y_pred)
     rmse = np.sqrt(mse)
     print('Model MSE:', mse)
     print('Model RMSE:', rmse)
+    print('Model (RMSE/Test Mean):', rmse/test_mean)
 
-    print('Explained Variance Score', explained_variance_score(y_pred, y_test))
+    #print('Explained Variance Score', explained_variance_score(y_pred, y_test))
 
     return y_pred
 

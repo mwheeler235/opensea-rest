@@ -58,11 +58,11 @@ One hot encoding seems to perform slightly better.
 
 ### Modeling with Outliers Removed
 
-After removing outliers with Prices greather than 70 ETH:
+After removing outliers with Prices greater than 50 ETH, and tuning the model a bitmore, these are the results:
 
 <img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/xgb_outliers_removed_1he.png" width="250" height="200">
 
-Further scope analysis should produce a more targeted model.
+The RMSE/Mean finally snuck under 1.0! This is quite reasonable given the limited features, but further scope analysis and feature exploration should produce an even more efficient model.
 
 ### Comparing to Brick & Mortar Home Sales
 

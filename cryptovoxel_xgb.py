@@ -255,7 +255,7 @@ def main(encode_type, norm_target):
         sys.exit()
 
     # remove outliers
-    df_outliers_removed = remove_outliers(df=df_features_numeric, target='last_sale_total_price_adj', threshold=75)
+    df_outliers_removed = remove_outliers(df=df_features_numeric, target='last_sale_total_price_adj', threshold=50)
     print(f"Data after outlier removal has {len(df_outliers_removed)} records.")
 
     if norm_target == True:

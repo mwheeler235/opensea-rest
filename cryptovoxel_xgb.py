@@ -152,14 +152,11 @@ def train_model_and_evaluate(X_train, X_test, y_train, y_test, X):
     y_train = y_train.copy()
     X_test = X_test.copy()
 
-    # Lambda: regularization parameter that reduces the prediction’s sensitivity to individual observations
-    # Gamma: minimum loss reduction required to make a further partition on a leaf node of the tree
-   
     # Hyperparameter ranges:
     params = {"colsample_bytree": stats.uniform(0.7, 0.3), # subsample ratio of columns when constructing each tree. Subsampling occurs once for every tree constructed
             #"colsample_bynode": stats.uniform(0.5, 1),
-            "gamma": stats.uniform(0, 2), # defaut=0
-            #"lambda": stats.uniform(0.5, 1.5),
+            "gamma": stats.uniform(0, 2), # defaut=0 # Gamma: minimum loss reduction required to make a further partition on a leaf node of the tree
+            #"lambda": stats.uniform(0.5, 1.5), # Lambda: regularization parameter that reduces the prediction’s sensitivity to individual observations
             "learning_rate": stats.uniform(0.001, 0.2), # default 0.3 
             "max_depth": randint(2, 6), # default 6; Maximum depth of a tree. Increasing this value will make the model more complex and more likely to overfit
             "n_estimators": randint(100, 250), # default 100
@@ -168,7 +165,7 @@ def train_model_and_evaluate(X_train, X_test, y_train, y_test, X):
             }
 
     numFolds    = 5
-    n_iter      = 3
+    n_iter      = 1
     folds = KFold(n_splits=numFolds, shuffle=True)
     
     xgb_model = XGBRegressor(objective="reg:squarederror", random_state=29)
@@ -210,27 +207,36 @@ def train_model_and_evaluate(X_train, X_test, y_train, y_test, X):
     return y_pred
 
 
-def post_process_and_write_results(y_test, y_pred, X_test, encode_type):
+def post_process_and_write_results(y_test, y_pred, X_test, df_features, encode_type):
     
+    # post process prediction results (rename cols and reset index)
     y_pred_df = pd.DataFrame(y_pred).rename(columns={0: "predicted_price"})
     y_test_df = pd.DataFrame(y_test).rename(columns={"last_sale_total_price_adj": "actual_price"})
     y_test_df.reset_index(inplace=True, drop=True)
 
-    X_test.reset_index(inplace=True)
+    # Join raw Neighborhood and NearTo fields to results based on original Index
+    df_features_non_encoded = df_features[['neighborhood','near_to']]
+    X_test_plus_cols = X_test.join(df_features_non_encoded)
 
-    joined_results = y_pred_df.join(y_test_df).join(X_test)
+    # reset index for joining prediction results
+    X_test_plus_cols.reset_index(inplace=True)
+
+    joined_results = y_pred_df.join(y_test_df).join(X_test_plus_cols)
+
+    # Select original predictor columns without 1HE cols
+    results_slim = joined_results[['index','predicted_price','actual_price','cv_plotSize_m_sq','cv_OCdistance_m','cv_buildHeight_m','cv_floor_elev_m','neighborhood','near_to']]
 
     out_file = f"xgb_results_{encode_type}.csv"
 
-    joined_results.to_csv(out_file, index=False)
+    results_slim.to_csv(out_file, index=False)
     print(f"XGBoost model results written to {out_file}")
 
-    return joined_results
+    return results_slim
 
 
 def main(encode_type, norm_target):
     
-    df_features = read_and_define_scope(file_name = 'opensea_cryptovoxels_limit=6000_exDTMT=2021-05-04_09_45_55.csv', 
+    df_features = read_and_define_scope(file_name = 'opensea_cryptovoxels_limit=6000_exDTMT=2021-05-20_11_39_55.csv', 
     desired_features = ['last_sale_total_price_adj','cv_plotSize_m_sq','cv_OCdistance_m','cv_buildHeight_m','cv_floor_elev_m','neighborhood','near_to'], 
     target = 'last_sale_total_price_adj',
     viz=False
@@ -263,7 +269,7 @@ def main(encode_type, norm_target):
     y_pred = train_model_and_evaluate(X_train, X_test, y_train, y_test, X)
 
     # post process results and write to CSV
-    joined_results = post_process_and_write_results(y_test=y_test, y_pred=y_pred, X_test=X_test, encode_type=encode_type)
+    joined_results = post_process_and_write_results(y_test=y_test, y_pred=y_pred, X_test=X_test, df_features=df_features, encode_type=encode_type)
 
 
 if __name__== "__main__" :

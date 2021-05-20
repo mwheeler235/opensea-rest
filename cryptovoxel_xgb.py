@@ -184,7 +184,10 @@ def train_model_and_evaluate(X_train, X_test, y_train, y_test, X):
     )
 
     print(f"...tuning models with {n_iter} iterations")
-    xgb_search.fit(X_train, y_train)
+    xgb_search.fit(X_train, y_train, 
+    eval_set=[(X_train, y_train), (X_test, y_test)],
+    early_stopping_rounds=20
+    )
     print("~~~ Done tuning models ~~~")
 
     print("\n The best estimator across all searched params:\n", xgb_search.best_estimator_)

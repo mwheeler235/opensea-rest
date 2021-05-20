@@ -58,7 +58,7 @@ One hot encoding seems to perform slightly better.
 
 ### Modeling with Outliers Removed
 
-After removing outliers with Prices greater than 50 ETH, and tuning the model more, these are the prediction results:
+To drive down the Over-predicting, we can remove outliers with Prices greater than 50 ETH. Also, we can implement Early Stopping. These are the resulting prediction results:
 
 <img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/xgb_outliers_removed_1he.png" width="250" height="200">
 

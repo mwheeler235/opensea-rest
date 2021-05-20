@@ -62,7 +62,7 @@ To drive down the Over-predicting, we can remove outliers with Prices greater th
 
 <img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/xgb_outliers_removed_1he.png" width="250" height="200">
 
-The RMSE/Mean finally snuck under 1.0! Diving deeper into the model results, we can see that across different Property sizes, the RMSE/Mean is scattered is not necessarily worse for certain sizes (this is good). Also, we can see the worst performing Neighborhoods - it may be possible to remedy this with other features.
+The RMSE/Mean finally snuck under 1.0! Diving deeper into the model results, we can see that across different Property sizes, the RMSE/Mean is scattered and is not necessarily worse for certain size buckets (this is good). Also, we can see the worst performing Neighborhoods - it may be possible to remedy this with other features.
 
 <img src="https://github.com/datavizhokie/opensea-rest/blob/main/img/performance_deep_dive.png" width="350" height="600">
 
